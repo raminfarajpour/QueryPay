@@ -64,6 +64,8 @@ artifacts/
 *.msm
 *.msp
 
+.DS_Store
+
 # Temporary ASP.NET files
 TemporaryASP.NETFiles/
 
