@@ -12,8 +12,15 @@ type ProxyConfig struct {
 	DestinationPort int    `yaml:"destination_port"`
 }
 
+type RedisConfig struct {
+	Address  string `yaml:"address"`
+	Password string `yaml:"password"`
+	DB       int    `yaml:"db"`
+}
+
 type Config struct {
 	Proxy ProxyConfig `yaml:"proxy"`
+	Redis RedisConfig `yaml:"redis"`
 }
 
 func LoadConfig(filename string) (*Config, error) {

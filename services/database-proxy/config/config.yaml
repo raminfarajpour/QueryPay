@@ -2,3 +2,7 @@ proxy:
   listen_port: 1434
   destination_host: "127.0.0.1"
   destination_port: 1433
+redis:
+    address: "localhost:6379"
+    password: ""
+    db: 0

@@ -1,7 +1,9 @@
 package main
 
 import (
+	"github.com/go-redis/redis/v8"
 	"github.com/raminfarajpour/database-proxy/config"
+	"github.com/raminfarajpour/database-proxy/internal/outbox"
 	"github.com/raminfarajpour/database-proxy/internal/proxy"
 	"github.com/rs/zerolog/log"
 	"os"
@@ -20,8 +22,15 @@ func main() {
 		log.Fatal().Msgf("failed to load config file %w \n", err)
 	}
 
-	log.Info().Msgf("read file %v", config)
-	proxyServer, err := proxy.NewDatabaseProxyServer(config.Proxy.ListenPort, config.Proxy.DestinationHost, config.Proxy.DestinationPort)
+	redisClient := redis.NewClient(&redis.Options{
+		Addr:     config.Redis.Address,
+		Password: config.Redis.Password,
+		DB:       config.Redis.DB,
+	})
+
+	outbox := outbox.NewOutbox(redisClient)
+
+	proxyServer, err := proxy.NewDatabaseProxyServer(config.Proxy.ListenPort, config.Proxy.DestinationHost, config.Proxy.DestinationPort, outbox)
 
 	if err != nil {
 		log.Fatal().Msgf("fail to create proxy server. error: %v\n", err)

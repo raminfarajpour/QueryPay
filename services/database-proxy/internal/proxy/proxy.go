@@ -1,7 +1,10 @@
 package proxy
 
 import (
+	"context"
 	"fmt"
+	"github.com/raminfarajpour/database-proxy/internal/events"
+	"github.com/raminfarajpour/database-proxy/internal/outbox"
 	"github.com/raminfarajpour/database-proxy/internal/tds"
 	"github.com/rs/zerolog/log"
 	"io"
@@ -13,13 +16,15 @@ type DatabaseProxyServer struct {
 	ListenPort      int
 	DestinationHost string
 	DestinationPort int
+	Outbox          *outbox.Outbox
 }
 
-func NewDatabaseProxyServer(listenPort int, destinationHost string, destinationPort int) (*DatabaseProxyServer, error) {
+func NewDatabaseProxyServer(listenPort int, destinationHost string, destinationPort int, outbox *outbox.Outbox) (*DatabaseProxyServer, error) {
 	proxyServer := DatabaseProxyServer{
 		listenPort,
 		destinationHost,
 		destinationPort,
+		outbox,
 	}
 	err := proxyServer.Validate()
 	if err != nil {
@@ -169,6 +174,14 @@ func (dbProxy *DatabaseProxyServer) analyzePacket(data []byte) {
 	}
 
 	result := packet.Parse()
+
+	event, err := events.NewEvent(result)
+	if err != nil {
+		log.Fatal().Msgf("error in creating event for %v with error %v", result, err)
+		return
+	}
+	ctx := context.Background()
+	dbProxy.Outbox.WriteEvent(ctx, event)
 
 	log.Info().Msgf("status %#X type: %#X parsed packet %v\n", data[1], data[0], result)
 
