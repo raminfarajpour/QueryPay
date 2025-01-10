@@ -66,6 +66,20 @@ artifacts/
 
 .DS_Store
 
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+
+# Output of the Go build
+*.out
+
+# Go modules
+go.sum
+
 # Temporary ASP.NET files
 TemporaryASP.NETFiles/
 
