@@ -6,8 +6,4 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
-    <ItemGroup>
-      <ProjectReference Include="..\Wallet.BuildingBlocks\Wallet.BuildingBlocks.csproj" />
-    </ItemGroup>
-
 </Project>
