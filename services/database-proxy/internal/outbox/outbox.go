@@ -23,8 +23,14 @@ func NewOutbox(redisClient *redis.Client) *Outbox {
 }
 
 func (outbox *Outbox) WriteEvent(context context.Context, event *events.Event) error {
-	err := outbox.redisClient.RPush(context, outbox.key, event)
+
+	eventData, err := json.Marshal(*event)
 	if err != nil {
+		return fmt.Errorf("error in serializing event: %w", err)
+	}
+
+	pushErr := outbox.redisClient.RPush(context, outbox.key, eventData).Err()
+	if pushErr != nil {
 		return fmt.Errorf("error in writing in outbox %v", err)
 	}
 	return nil
@@ -49,8 +55,12 @@ func (outbox *Outbox) ReadEvents(ctx context.Context) ([]events.Event, error) {
 	return eventList, nil
 }
 
-func (outbox *Outbox) RemoveEvent(ctx context.Context, event string) error {
-	err := outbox.redisClient.LRem(ctx, outbox.key, 1, event).Err()
+func (outbox *Outbox) RemoveEvent(ctx context.Context, event *events.Event) error {
+	eventData, err := json.Marshal(*event)
+	if err != nil {
+		return fmt.Errorf("error in serializing event: %w", err)
+	}
+	err = outbox.redisClient.LRem(ctx, outbox.key, 1, eventData).Err()
 	if err != nil {
 		return fmt.Errorf("failed to remove event from outbox: %w", err)
 	}

@@ -175,13 +175,15 @@ func (dbProxy *DatabaseProxyServer) analyzePacket(data []byte) {
 
 	result := packet.Parse()
 
-	event, err := events.NewEvent(result)
-	if err != nil {
-		log.Fatal().Msgf("error in creating event for %v with error %v", result, err)
-		return
+	if (result.Keywords != nil && len(result.Keywords) > 0) || result.RowCount > 0 {
+		event, err := events.NewEvent(result)
+		if err != nil {
+			log.Fatal().Msgf("error in creating event for %v with error %v", result, err)
+			return
+		}
+		ctx := context.Background()
+		dbProxy.Outbox.WriteEvent(ctx, event)
 	}
-	ctx := context.Background()
-	dbProxy.Outbox.WriteEvent(ctx, event)
 
 	log.Info().Msgf("status %#X type: %#X parsed packet %v\n", data[1], data[0], result)
 
