@@ -1,4 +1,5 @@
 using Wallet.BuildingBlocks.Domain;
+using Wallet.Domain.WalletAggregate.Snapshots;
 
 namespace Wallet.Domain.WalletAggregate;
 
@@ -74,6 +75,22 @@ public class Wallet : Aggregate<Wallet>
                 break;
             }
         }
+    }
+
+    protected override void Apply(Snapshot<Wallet> snapshot)
+    {
+        switch (snapshot)
+        {
+            case WalletSnapshot walletSnapshot:
+            {
+                Balance=walletSnapshot.Balance;
+                OverUsedThreshold=walletSnapshot.OverUsedThreshold;
+                Owner = walletSnapshot.Owner;
+                CreatedAt=walletSnapshot.CreatedAt;
+                break;
+            }
+        }
+       
     }
 
     public void Create(Money initialBalance, Money overUsedThreshold, Owner owner)

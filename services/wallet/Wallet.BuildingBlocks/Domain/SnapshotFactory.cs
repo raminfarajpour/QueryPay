@@ -12,7 +12,7 @@ public abstract class SnapshotFactory<TAggregate, TSnapshot> : ISnapshotFactory<
         if (aggregate.Events.Count == 0) return false;
 
         var firstEventSegment = aggregate.Events.First().Index / Interval;
-        var nextEventSegment = aggregate.Events.Last().Index + 1 / Interval;
+        var nextEventSegment = (aggregate.Events.Last().Index + 1) / Interval;
         return firstEventSegment != nextEventSegment;
     }
 

@@ -2,6 +2,10 @@
 
 public class EventEntity
 {
+    public EventEntity()
+    {
+        
+    }
     public required Guid Id { get; set; } 
     public required Guid AggregateId{ get; set; }
     public required long Index{ get; set; }

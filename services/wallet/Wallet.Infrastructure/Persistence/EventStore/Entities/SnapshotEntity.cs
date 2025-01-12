@@ -2,6 +2,10 @@
 
 public class SnapshotEntity
 {
+    public SnapshotEntity()
+    {
+        
+    }
     public required Guid Id{ get; set; }
     public required Guid AggregateId{ get; set; }
     public required string AggregateType{ get; set; }

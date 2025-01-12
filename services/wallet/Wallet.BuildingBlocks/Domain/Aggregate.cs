@@ -37,6 +37,7 @@ public abstract class Aggregate<TAggregate> : Aggregate where TAggregate : Aggre
 
     protected virtual void Apply(Snapshot<TAggregate> snapshot)
     {
+        
     }
 
     private void ValidateAndApply(Event<TAggregate>? @event)
@@ -64,7 +65,7 @@ public abstract class Aggregate<TAggregate> : Aggregate where TAggregate : Aggre
     private void Validate(Snapshot<TAggregate> snapshot)
     {
         if (snapshot.AggregateId != Id) throw new Exception($"Invalid aggregate id: {snapshot.AggregateId}");
-        if (snapshot.Index != Version) throw new Exception($"Invalid aggregate index: {snapshot.Index}");
+//if (snapshot.Index != Version) throw new Exception($"Invalid aggregate index: {snapshot.Index}");
     }
 
     public async Task RehydrateAsync(Snapshot<TAggregate>? snapshot, IAsyncEnumerable<Event<TAggregate>?> events,
