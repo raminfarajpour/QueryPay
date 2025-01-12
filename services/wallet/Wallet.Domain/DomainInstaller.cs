@@ -6,7 +6,7 @@ namespace Wallet.Domain;
 
 public static class DomainInstaller
 {
-    public static void Install(this IServiceCollection services)
+    public static void ConfigureDomain(this IServiceCollection services)
     {
         services.AddScoped<ISnapshotFactory<WalletAggregate.Wallet>,WalletSnapshotFactory>();
     }

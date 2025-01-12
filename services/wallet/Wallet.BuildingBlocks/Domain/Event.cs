@@ -11,7 +11,7 @@ public abstract record Event
     protected Event()
     {
         Type = GetType().Name;
-        Timestamp = DateTimeOffset.Now;
+        Timestamp = DateTimeOffset.UtcNow;
     }
 }
 

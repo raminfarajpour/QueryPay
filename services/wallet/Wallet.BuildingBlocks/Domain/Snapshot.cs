@@ -12,7 +12,7 @@ public abstract record Snapshot
     protected Snapshot()
     {
         Type = GetType().Name;
-        Timestamp = DateTimeOffset.Now;
+        Timestamp = DateTimeOffset.UtcNow;
     }
 }
 

@@ -1,9 +1,17 @@
+using MediatR;
+using Wallet.Application.Commands.CreateWallet;
+using Wallet.Domain;
+using Wallet.Infrastructure;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
-
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.ConfigureDomain();
+builder.Services.ConfigureInfrastructure(builder.Configuration);
+builder.Services.AddMediatR(c=>c.RegisterServicesFromAssembly(typeof(CreateWalletCommand).Assembly));
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -32,6 +40,18 @@ app.MapGet("/weatherforecast", () =>
     return forecast;
 })
 .WithName("GetWeatherForecast");
+
+app.MapPost("/wallet", async (IMediator mediator) =>
+    {
+        await mediator.Send(new CreateWalletCommand()
+        {
+            InitialBalance = 1000,
+            OwnerMobile = "0123456789",
+            OverUsedThreshold = -10000,
+            OwnerUserId = 123432,
+        });
+    })
+    .WithName("Wallet");
 
 app.Run();
 
