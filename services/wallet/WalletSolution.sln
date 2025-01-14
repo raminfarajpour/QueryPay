@@ -17,6 +17,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wallet.BuildingBlocks", "Wa
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wallet.ReadModel", "Wallet.ReadModel\Wallet.ReadModel.csproj", "{90FF453D-EEB9-4E80-984A-917420AD9E38}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{24E7F5FD-CCC0-4AE0-9E58-A272758B0A92}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wallet.UnitTests", "Wallet.UnitTests\Wallet.UnitTests.csproj", "{43A5F49A-2FB2-4FD2-A5A2-A0180430DA4E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -50,8 +54,13 @@ Global
 		{90FF453D-EEB9-4E80-984A-917420AD9E38}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{90FF453D-EEB9-4E80-984A-917420AD9E38}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{90FF453D-EEB9-4E80-984A-917420AD9E38}.Release|Any CPU.Build.0 = Release|Any CPU
+		{43A5F49A-2FB2-4FD2-A5A2-A0180430DA4E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{43A5F49A-2FB2-4FD2-A5A2-A0180430DA4E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{43A5F49A-2FB2-4FD2-A5A2-A0180430DA4E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{43A5F49A-2FB2-4FD2-A5A2-A0180430DA4E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{A6795B04-DA4E-4D17-B1CD-81677FF40CEA} = {D0350CDA-30BE-48F6-BBF8-B94FE4BDE7AB}
+		{43A5F49A-2FB2-4FD2-A5A2-A0180430DA4E} = {24E7F5FD-CCC0-4AE0-9E58-A272758B0A92}
 	EndGlobalSection
 EndGlobal
