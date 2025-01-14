@@ -1,7 +1,9 @@
 using MediatR;
+using Wallet.Application;
 using Wallet.Application.Commands.CreateWallet;
 using Wallet.Domain;
 using Wallet.Infrastructure;
+using Wallet.ReadModel;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,8 +12,10 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddOpenApi();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.ConfigureDomain();
+builder.Services.ConfigureApplication();
 builder.Services.ConfigureInfrastructure(builder.Configuration);
-builder.Services.AddMediatR(c=>c.RegisterServicesFromAssembly(typeof(CreateWalletCommand).Assembly));
+builder.Services.ConfigureReadModel(builder.Configuration);
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

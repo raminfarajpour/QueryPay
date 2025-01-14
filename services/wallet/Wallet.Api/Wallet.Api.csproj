@@ -18,6 +18,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Wallet.Application\Wallet.Application.csproj" />
     <ProjectReference Include="..\Wallet.Infrastructure\Wallet.Infrastructure.csproj" />
+    <ProjectReference Include="..\Wallet.ReadModel\Wallet.ReadModel.csproj" />
   </ItemGroup>
 
 </Project>

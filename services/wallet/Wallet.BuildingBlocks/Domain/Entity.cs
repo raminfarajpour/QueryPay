@@ -2,7 +2,7 @@ namespace Wallet.BuildingBlocks.Domain;
 
 public abstract class Entity<TId> where TId : notnull
 {
-    public TId Id { get; }
+    public TId Id { get; protected set; }
 
     public override bool Equals(object? obj)
         => obj is Entity<TId> entity && Id.Equals(entity.Id);

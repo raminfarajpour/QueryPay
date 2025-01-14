@@ -4,6 +4,7 @@ using Wallet.Domain.WalletAggregate.Snapshots;
 namespace Wallet.Domain.WalletAggregate;
 
 public class Wallet : Aggregate<Wallet>
+
 {
     public Money Balance { get; private set; }
     public Money OverUsedThreshold { get; private set; }
@@ -27,16 +28,16 @@ public class Wallet : Aggregate<Wallet>
                 if (createdEvent.InitialBalance > (Money)0)
                 {
                     var transactionInfo = new TransactionInfo(
-                        Guid.NewGuid().ToString("N"), 
+                        Guid.NewGuid().ToString("N"),
                         Id.ToString(),
                         "Wallet Initial Balance");
-                    
+
                     var transaction = new Transaction(transactionInfo,
-                        createdEvent.InitialBalance, 
+                        createdEvent.InitialBalance,
                         (Money)0L,
                         createdEvent.InitialBalance,
                         TransactionDirection.Increase);
-                    
+
                     _transactions.Add(transaction);
                 }
 
@@ -46,15 +47,15 @@ public class Wallet : Aggregate<Wallet>
             {
                 var balanceBefore = Balance;
                 Balance += depositedEvent.Amount;
-                
+
                 var transaction = new Transaction(depositedEvent.TransactionInfo,
-                    depositedEvent.Amount, 
+                    depositedEvent.Amount,
                     balanceBefore,
                     Balance,
                     TransactionDirection.Increase);
-                    
+
                 _transactions.Add(transaction);
-                
+
                 break;
             }
             case WalletWithdrawalEvent withdrawalEvent:
@@ -66,11 +67,11 @@ public class Wallet : Aggregate<Wallet>
                 Balance -= withdrawalEvent.Amount;
 
                 var transaction = new Transaction(withdrawalEvent.TransactionInfo,
-                    withdrawalEvent.Amount, 
+                    withdrawalEvent.Amount,
                     balanceBefore,
                     Balance,
                     TransactionDirection.Decrease);
-                    
+
                 _transactions.Add(transaction);
                 break;
             }
@@ -83,14 +84,13 @@ public class Wallet : Aggregate<Wallet>
         {
             case WalletSnapshot walletSnapshot:
             {
-                Balance=walletSnapshot.Balance;
-                OverUsedThreshold=walletSnapshot.OverUsedThreshold;
+                Balance = walletSnapshot.Balance;
+                OverUsedThreshold = walletSnapshot.OverUsedThreshold;
                 Owner = walletSnapshot.Owner;
-                CreatedAt=walletSnapshot.CreatedAt;
+                CreatedAt = walletSnapshot.CreatedAt;
                 break;
             }
         }
-       
     }
 
     public void Create(Money initialBalance, Money overUsedThreshold, Owner owner)
@@ -102,9 +102,11 @@ public class Wallet : Aggregate<Wallet>
     {
         Apply(new WalletDepositedEvent(amount, transactionInfo));
     }
-    
+
     public void Withdraw(Money amount, TransactionInfo transactionInfo)
     {
         Apply(new WalletWithdrawalEvent(amount, transactionInfo));
     }
+
+    public void ClearTransaction() => _transactions.Clear();
 }

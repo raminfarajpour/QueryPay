@@ -7,6 +7,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <Folder Include="IntegrationEvents\Events\" />
       <Folder Include="Queries\" />
     </ItemGroup>
 
