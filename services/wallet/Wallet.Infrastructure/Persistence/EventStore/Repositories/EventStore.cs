@@ -72,9 +72,8 @@ public class EventStore(EventStoreContext dbContext, IServiceProvider servicePro
         DateTimeOffset? currentDateTimeOffset = null, CancellationToken cancellationToken = default)
         where TAggregate : Aggregate<TAggregate>, new()
     {
-        Expression<Func<SnapshotEntity, bool>> searchExpression = (currentDateTimeOffset is null)
-            ? s => s.AggregateId == aggregateId
-            : s => s.AggregateId == aggregateId && s.CreatedAt <= currentDateTimeOffset;
+        var targetDateTimeOffset = currentDateTimeOffset ?? DateTimeOffset.MaxValue;
+        Expression<Func<SnapshotEntity, bool>> searchExpression = s => s.AggregateId == aggregateId && s.CreatedAt <= targetDateTimeOffset;
 
         var snapshot = await dbContext.Snapshots.Where(searchExpression).OrderByDescending(s => s.Version)
             .FirstOrDefaultAsync(cancellationToken);
@@ -89,13 +88,11 @@ public class EventStore(EventStoreContext dbContext, IServiceProvider servicePro
         [EnumeratorCancellation] CancellationToken cancellationToken = default)
         where TAggregate : Aggregate<TAggregate>, new()
     {
-        Expression<Func<EventEntity, bool>> searchExpression = (currentDateTimeOffset is null)
-            ? startIndex is null
-                ? e => e.AggregateId == aggregateId
-                : e => e.AggregateId == aggregateId && e.Index > startIndex
-            : startIndex is null
-                ? e => e.AggregateId == aggregateId && e.Timestamp >= currentDateTimeOffset
-                : e => e.AggregateId == aggregateId && e.Timestamp >= currentDateTimeOffset && e.Index > startIndex;
+        var targetDateTimeOffset = currentDateTimeOffset ?? DateTimeOffset.MaxValue;
+
+        Expression<Func<EventEntity, bool>> searchExpression = startIndex is null
+                ? e => e.AggregateId == aggregateId && e.Timestamp <= targetDateTimeOffset
+                : e => e.AggregateId == aggregateId && e.Timestamp <= targetDateTimeOffset && e.Index > startIndex;
 
         var events = dbContext.Events
             .Where(searchExpression)

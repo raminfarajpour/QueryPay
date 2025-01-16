@@ -7,6 +7,7 @@ namespace Wallet.BuildingBlocks.Integration.MessageBroker
         public async Task ProduceAsync(byte[] data, string exchange, string routingKey, bool persist = false,
             CancellationToken cancellationToken = default)
         {
+            ArgumentNullException.ThrowIfNull(data);
             await messageBroker.InitialChannelAsync(cancellationToken);
             
             var basicProperties = new BasicProperties

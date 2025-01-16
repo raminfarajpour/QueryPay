@@ -21,6 +21,7 @@ public abstract class Aggregate<TAggregate> : Aggregate where TAggregate : Aggre
 
     public TEvent Apply<TEvent>(TEvent e) where TEvent : Event<TAggregate>
     {
+        if (e is null) throw new ArgumentNullException(nameof(e));
         e = e with
         {
             AggregateId = Id,
@@ -65,7 +66,7 @@ public abstract class Aggregate<TAggregate> : Aggregate where TAggregate : Aggre
     private void Validate(Snapshot<TAggregate> snapshot)
     {
         if (snapshot.AggregateId != Id) throw new Exception($"Invalid aggregate id: {snapshot.AggregateId}");
-//if (snapshot.Index != Version) throw new Exception($"Invalid aggregate index: {snapshot.Index}");
+        //if (snapshot.Index != Version) throw new Exception($"Invalid aggregate index: {snapshot.Index}");
     }
 
     public async Task RehydrateAsync(Snapshot<TAggregate>? snapshot, IAsyncEnumerable<Event<TAggregate>?> events,

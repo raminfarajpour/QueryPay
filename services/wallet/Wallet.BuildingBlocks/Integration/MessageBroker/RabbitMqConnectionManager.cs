@@ -4,51 +4,52 @@ using RabbitMQ.Client;
 
 namespace Wallet.BuildingBlocks.Integration.MessageBroker
 {
-    public class RabbitMqConnectionManager<TSetting>(
-        ILogger<RabbitMqConnectionManager<TSetting>> logger,
-        IOptions<TSetting> rabbitMqSettingOptions)
+    public class RabbitMqConnectionManager(
+        IRabbitMqConnectionFactory factory,
+        ILogger<RabbitMqConnectionManager> logger)
         : IRabbitMqConnectionManager
-        where TSetting : RabbitMqSetting, new()
     {
         private readonly ILogger _logger = logger;
-        private readonly TSetting _rabbitMqSetting = rabbitMqSettingOptions.Value;
 
-        private ConnectionFactory? _factory;
         private IConnection? _connection;
         private IChannel? _channel;
 
 
-        private async Task<IConnection> CreateConnectionAsync(CancellationToken cancellationToken)
+        public async Task InitialChannelAsync(CancellationToken cancellationToken)
         {
-            _factory ??= new ConnectionFactory();
-            _factory.UserName = _rabbitMqSetting.ConnectionSetting.Username;
-            _factory.Password = _rabbitMqSetting.ConnectionSetting.Password;
-            _factory.HostName = _rabbitMqSetting.ConnectionSetting.HostName;
-            _factory.Port = _rabbitMqSetting.ConnectionSetting.Port;
-            _factory.VirtualHost = _rabbitMqSetting.ConnectionSetting.VirtualHost;
-
-
-            _logger.LogInformation($"Connecting to RabbitMQ ...");
-
-            return await _factory.CreateConnectionAsync();
+            if (_channel is null)
+            {
+                var createdConnection=await factory.CreateConnectionAsync(cancellationToken);
+                _connection = createdConnection.Connection;
+                _channel = await _connection.CreateChannelAsync(cancellationToken: cancellationToken);
+                await DeclareExchangeAndQueuesAsync(createdConnection.ExchangeSettings,cancellationToken);
+            }
         }
 
-
-        private async Task DeclareExchangeAndQueuesAsync(CancellationToken cancellationToken)
+        public IChannel GetChannel()
         {
-            var exchangeSettings = _rabbitMqSetting.GetExchanges();
+            if (_channel is null)
+                throw new InvalidOperationException(
+                    "Channel has not been initialized. Call InitialChannelAsync first.");
+            return _channel!;
+        }
+
+        private async Task DeclareExchangeAndQueuesAsync(List<RabbitMqExchangeSetting> exchangeSettings, CancellationToken cancellationToken)
+        {
 
             if (exchangeSettings is null) return;
 
             foreach (var exchangeSetting in exchangeSettings)
             {
                 await _channel.ExchangeDeclareAsync(exchangeSetting.Name, type: exchangeSetting.Type,
-                    durable: exchangeSetting.Durable, autoDelete: exchangeSetting.AutoDelete,cancellationToken: cancellationToken);
+                    durable: exchangeSetting.Durable, autoDelete: exchangeSetting.AutoDelete,
+                    cancellationToken: cancellationToken);
 
                 var retryExchangeName = $"Retry_{exchangeSetting.Name}";
 
                 await _channel.ExchangeDeclareAsync(retryExchangeName, type: exchangeSetting.Type,
-                    durable: exchangeSetting.Durable, autoDelete: exchangeSetting.AutoDelete, cancellationToken: cancellationToken);
+                    durable: exchangeSetting.Durable, autoDelete: exchangeSetting.AutoDelete,
+                    cancellationToken: cancellationToken);
 
                 var queueSettings = exchangeSetting.GetQueues();
 
@@ -71,7 +72,8 @@ namespace Wallet.BuildingBlocks.Integration.MessageBroker
                         autoDelete: queue.AutoDelete
                         , arguments, cancellationToken: cancellationToken);
 
-                    await _channel.QueueBindAsync(queue: queue.Name, exchange: exchangeSetting.Name, routingKey: queue.RoutingKey, cancellationToken: cancellationToken);
+                    await _channel.QueueBindAsync(queue: queue.Name, exchange: exchangeSetting.Name,
+                        routingKey: queue.RoutingKey, cancellationToken: cancellationToken);
 
                     if (queue.RetryQueue is null) continue;
 
@@ -93,22 +95,6 @@ namespace Wallet.BuildingBlocks.Integration.MessageBroker
                         routingKey: queue.RetryQueue.RoutingKey, cancellationToken: cancellationToken);
                 }
             }
-
-        }
-
-        public async Task InitialChannelAsync(CancellationToken cancellationToken)
-        {
-            if(_channel is null)
-            {
-                _connection = await CreateConnectionAsync(cancellationToken);
-                _channel = await _connection.CreateChannelAsync(cancellationToken: cancellationToken);
-                await DeclareExchangeAndQueuesAsync(cancellationToken);
-            }
-        }
-
-        public IChannel GetChannel()
-        {
-            return _channel;
         }
     }
 }

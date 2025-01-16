@@ -24,11 +24,11 @@ public static class InfrastructureInstaller
 
         services.AddSingleton<IProducerService, ProducerService>();
 
-        services.AddSingleton<IRabbitMqConnectionManager,RabbitMqConnectionManager<EventBusSetting>>();
+        services.AddSingleton<IRabbitMqConnectionFactory, RabbitMqConnectionFactory>();
+        services.AddSingleton<IRabbitMqConnectionManager, RabbitMqConnectionManager>();
 
         services.AddSingleton<IConsumerService, ConsumerService>();
-        
+
         services.AddHostedService<ConsumersHostedService>();
     }
-    
 }
