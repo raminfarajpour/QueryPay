@@ -1,4 +1,5 @@
 using MediatR;
+using Wallet.Api.Extensions;
 using Wallet.Application;
 using Wallet.Application.Commands.CreateWallet;
 using Wallet.Domain;
@@ -15,7 +16,7 @@ builder.Services.ConfigureDomain();
 builder.Services.ConfigureApplication();
 builder.Services.ConfigureInfrastructure(builder.Configuration);
 builder.Services.ConfigureReadModel(builder.Configuration);
-
+builder.Services.AddEndpoints();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -25,41 +26,5 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
-
-app.MapGet("/weatherforecast", () =>
-{
-    var forecast =  Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast");
-
-app.MapPost("/wallet", async (IMediator mediator) =>
-    {
-        await mediator.Send(new CreateWalletCommand()
-        {
-            InitialBalance = 1000,
-            OwnerMobile = "0123456789",
-            OverUsedThreshold = -10000,
-            OwnerUserId = 123432,
-        });
-    })
-    .WithName("Wallet");
-
+app.MapEndpoints();
 app.Run();
-
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}

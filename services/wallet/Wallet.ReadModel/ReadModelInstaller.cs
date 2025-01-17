@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
+using Wallet.Application.IntegrationEvents;
 using Wallet.BuildingBlocks.Integration.MessageBroker;
 using Wallet.ReadModel.Messages;
 using Wallet.ReadModel.Repositories;
@@ -21,6 +22,7 @@ public static class ReadModelInstaller
             new WalletReadModelDatabaseContext(configuration.GetConnectionString("ReadModel")!, WalletDatabaseName));
         services.AddScoped<IWalletReadModelRepository, WalletReadModelRepository>();
         services.AddSingleton<IMessageHandler, WalletCreatedIntegrationMessageHandler>();
+        services.AddSingleton<IMessageHandler, WalletUpdatedIntegrationMessageHandler>();
         services.AddSingleton<IMessageHandler, WalletTransactionCreatedIntegrationMessageHandler>();
     }
 }

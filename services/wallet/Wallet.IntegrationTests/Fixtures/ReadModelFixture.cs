@@ -80,6 +80,23 @@ public class ReadModelFixture : IAsyncLifetime
                         AutoDelete = false,
                         Ttl = 120
                     }
+                },WalletUpdatedEventQueue = new RabbitMqQueueSetting
+                {
+                    Name = "test-update-queue",
+                    RoutingKey = "test-update-routing-key",
+                    Durable = true,
+                    Exclusive = false,
+                    AutoDelete = false,
+                    Ttl = 60,
+                    RetryQueue = new RabbitMqQueueSetting
+                    {
+                        Name = "retry-test-update-queue",
+                        RoutingKey = "retry-update-routing-key",
+                        Durable = true,
+                        Exclusive = false,
+                        AutoDelete = false,
+                        Ttl = 120
+                    }
                 }
             }
     }; 
@@ -118,6 +135,7 @@ public class ReadModelFixture : IAsyncLifetime
         services.AddScoped<IWalletReadModelRepository, WalletReadModelRepository>();
         services.AddSingleton<IMessageHandler, WalletCreatedIntegrationMessageHandler>();
         services.AddSingleton<IMessageHandler, WalletTransactionCreatedIntegrationMessageHandler>();
+        services.AddSingleton<IMessageHandler, WalletUpdatedIntegrationMessageHandler>();
         services.AddSingleton<IProducerService, ProducerService>();
 
         services.AddLogging(configure =>

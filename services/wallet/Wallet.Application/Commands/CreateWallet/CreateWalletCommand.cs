@@ -2,7 +2,7 @@
 
 namespace Wallet.Application.Commands.CreateWallet;
 
-public class CreateWalletCommand : IRequest
+public record CreateWalletCommand : IRequest
 {
     public decimal InitialBalance { get; set; }
     public long OwnerUserId { get; set; }
