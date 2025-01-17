@@ -46,7 +46,7 @@ public class WalletTests
     public void Transaction_Should_Set_Properties_Correctly()
     {
         // Arrange
-        var transactionInfo = new TransactionInfo("TID", "RID", "Test");
+        var transactionInfo = new TransactionInfo("RID", "Test");
         var amount = new Money(100);
         var balanceBefore = new Money(200);
         var balanceAfter = new Money(300);
@@ -68,7 +68,7 @@ public class WalletTests
         // Arrange
         var wallet = new global::Wallet.Domain.WalletAggregate.Wallet();
         wallet.Create(new Money(100), new Money(50), new Owner(1, "1234567890"));
-        var transactionInfo = new TransactionInfo("TID", "RID", "Withdrawal");
+        var transactionInfo = new TransactionInfo("RID", "Withdrawal");
 
         // Act
         Action action = () => wallet.Withdraw(new Money(200), transactionInfo);
@@ -83,7 +83,7 @@ public class WalletTests
         // Arrange
         var wallet = new global::Wallet.Domain.WalletAggregate.Wallet();
         wallet.Create(new Money(100), new Money(50), new Owner(1, "1234567890"));
-        var transactionInfo = new TransactionInfo("TID", "RID", "Deposit");
+        var transactionInfo = new TransactionInfo("RID", "Deposit");
 
         // Act
         wallet.Deposit(new Money(50), transactionInfo);
@@ -111,7 +111,7 @@ public class WalletTests
         // Arrange
         var wallet = new global::Wallet.Domain.WalletAggregate.Wallet();
         wallet.Create(new Money(100), new Money(50), new Owner(1, "1234567890"));
-        var transactionInfo = new TransactionInfo("TID", "RID", "Deposit");
+        var transactionInfo = new TransactionInfo("RID", "Deposit");
         wallet.Deposit(new Money(50), transactionInfo);
 
         // Act
@@ -125,10 +125,9 @@ public class WalletTests
     public void TransactionInfo_Should_Contain_Correct_Values()
     {
         // Arrange
-        var transactionInfo = new TransactionInfo("TID", "RID", "Description");
+        var transactionInfo = new TransactionInfo( "RID", "Description");
 
         // Assert
-        transactionInfo.TransactionId.Should().Be("TID");
         transactionInfo.ReferenceId.Should().Be("RID");
         transactionInfo.Description.Should().Be("Description");
     }

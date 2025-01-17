@@ -17,7 +17,8 @@ public class WithdrawEndpoint : IEndpoint
                     WalletId = walletId
                 };
 
-                await mediator.Send(withdrawCommand, cancellationToken);
+                var result = await mediator.Send(withdrawCommand, cancellationToken);
+                return Results.Ok(result);
             });
     }
 }

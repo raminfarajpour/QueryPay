@@ -60,7 +60,7 @@ public class EventStoreIntegrationTests(DatabaseFixture fixture) : IClassFixture
                 Index = 6,
                 Type = "WalletDepositedEvent",
                 Payload = JsonConvert.SerializeObject(new WalletDepositedEvent(new Money(200),
-                    new TransactionInfo("TID", "RID", "DESC"))
+                    new TransactionInfo( "RID", "DESC"))
                 {
                     Index = 6,
                     AggregateId = aggregateId,
@@ -76,7 +76,7 @@ public class EventStoreIntegrationTests(DatabaseFixture fixture) : IClassFixture
                 Index = 7,
                 Type = "WalletWithdrawalEvent",
                 Payload = JsonConvert.SerializeObject(new WalletWithdrawalEvent(new Money(100),
-                    new TransactionInfo("TID", "RID", "DESC"))
+                    new TransactionInfo("RID", "DESC"))
                 {
                     Index = 7,
                     AggregateId = aggregateId,
@@ -131,7 +131,7 @@ public class EventStoreIntegrationTests(DatabaseFixture fixture) : IClassFixture
                 Index = 1,
                 Type = "WalletDepositedEvent",
                 Payload = JsonConvert.SerializeObject(new WalletDepositedEvent(new Money(200),
-                    new TransactionInfo("TID", "RID", "DESC"))
+                    new TransactionInfo("RID", "DESC"))
                 {
                     Index = 1,
                     AggregateId = aggregateId,
@@ -147,7 +147,7 @@ public class EventStoreIntegrationTests(DatabaseFixture fixture) : IClassFixture
                 Index = 2,
                 Type = "WalletWithdrawalEvent",
                 Payload = JsonConvert.SerializeObject(new WalletWithdrawalEvent(new Money(100),
-                    new TransactionInfo("TID", "RID", "DESC"))
+                    new TransactionInfo("RID", "DESC"))
                 {
                     Index = 2,
                     AggregateId = aggregateId,
@@ -188,9 +188,9 @@ public class EventStoreIntegrationTests(DatabaseFixture fixture) : IClassFixture
             AggregateType = nameof(Wallet),
         };
         await fixture.Context.Events.AddAsync(invalidEvent);
-        
+
         // Act
-        Func<Task> act = async () =>  await fixture.Context.SaveChangesAsync();
+        Func<Task> act = async () => await fixture.Context.SaveChangesAsync();
 
         // Assert
         await act.Should().ThrowAsync<Exception>();
@@ -227,7 +227,7 @@ public class EventStoreIntegrationTests(DatabaseFixture fixture) : IClassFixture
                 Index = 1,
                 Type = "WalletDepositedEvent",
                 Payload = JsonConvert.SerializeObject(new WalletDepositedEvent(new Money(200),
-                    new TransactionInfo("TID", "RID", "DESC"))
+                    new TransactionInfo( "RID", "DESC"))
                 {
                     Index = 1,
                     AggregateId = aggregateId,
@@ -243,7 +243,7 @@ public class EventStoreIntegrationTests(DatabaseFixture fixture) : IClassFixture
                 Index = 2,
                 Type = "WalletWithdrawalEvent",
                 Payload = JsonConvert.SerializeObject(new WalletWithdrawalEvent(new Money(100),
-                    new TransactionInfo("TID", "RID", "DESC"))
+                    new TransactionInfo( "RID", "DESC"))
                 {
                     Index = 2,
                     AggregateId = aggregateId,
@@ -260,7 +260,8 @@ public class EventStoreIntegrationTests(DatabaseFixture fixture) : IClassFixture
         var rehydrateUntil = DateTimeOffset.UtcNow.AddMinutes(-100);
 
         // Act
-        var aggregate = await fixture.EventStore.RehydrateAsync<Domain.WalletAggregate.Wallet>(aggregateId, rehydrateUntil);
+        var aggregate =
+            await fixture.EventStore.RehydrateAsync<Domain.WalletAggregate.Wallet>(aggregateId, rehydrateUntil);
 
         // Assert
         aggregate.Should().NotBeNull();
@@ -276,23 +277,23 @@ public class EventStoreIntegrationTests(DatabaseFixture fixture) : IClassFixture
         // Arrange
         var aggregate = new Domain.WalletAggregate.Wallet();
         aggregate.Create(new Money(100), new Money(500), new Owner(1111, "11111"));
-        aggregate.Deposit(new Money(200), new TransactionInfo("TID1", "RID1", "DESC1"));
-        aggregate.Withdraw(new Money(300), new TransactionInfo("TID2", "RID2", "DESC2"));
-        aggregate.Deposit(new Money(25), new TransactionInfo("TID3", "RID3", "DESC3"));
-        aggregate.Withdraw(new Money(25), new TransactionInfo("TID3", "RID3", "DESC3"));
-        aggregate.Deposit(new Money(25), new TransactionInfo("TID3", "RID3", "DESC3"));
-        aggregate.Withdraw(new Money(25), new TransactionInfo("TID3", "RID3", "DESC3"));
-        aggregate.Deposit(new Money(25), new TransactionInfo("TID3", "RID3", "DESC3"));
-        aggregate.Withdraw(new Money(25), new TransactionInfo("TID3", "RID3", "DESC3"));
-        aggregate.Deposit(new Money(25), new TransactionInfo("TID3", "RID3", "DESC3"));
-        aggregate.Withdraw(new Money(25), new TransactionInfo("TID3", "RID3", "DESC3"));
-        aggregate.Deposit(new Money(25), new TransactionInfo("TID3", "RID3", "DESC3"));
-        aggregate.Withdraw(new Money(25), new TransactionInfo("TID3", "RID3", "DESC3"));
-        aggregate.Deposit(new Money(25), new TransactionInfo("TID3", "RID3", "DESC3"));
-        aggregate.Withdraw(new Money(25), new TransactionInfo("TID3", "RID3", "DESC3"));
-        aggregate.Deposit(new Money(25), new TransactionInfo("TID3", "RID3", "DESC3"));
-        aggregate.Withdraw(new Money(25), new TransactionInfo("TID3", "RID3", "DESC3"));
-        aggregate.Deposit(new Money(200), new TransactionInfo("TID5", "RID5", "DESC5"));
+        aggregate.Deposit(new Money(200), new TransactionInfo("RID1", "DESC1"));
+        aggregate.Withdraw(new Money(300), new TransactionInfo("RID2", "DESC2"));
+        aggregate.Deposit(new Money(25), new TransactionInfo("RID3", "DESC3"));
+        aggregate.Withdraw(new Money(25), new TransactionInfo("RID3", "DESC3"));
+        aggregate.Deposit(new Money(25), new TransactionInfo("RID3", "DESC3"));
+        aggregate.Withdraw(new Money(25), new TransactionInfo("RID3", "DESC3"));
+        aggregate.Deposit(new Money(25), new TransactionInfo("RID3", "DESC3"));
+        aggregate.Withdraw(new Money(25), new TransactionInfo("RID3", "DESC3"));
+        aggregate.Deposit(new Money(25), new TransactionInfo("RID3", "DESC3"));
+        aggregate.Withdraw(new Money(25), new TransactionInfo("RID3", "DESC3"));
+        aggregate.Deposit(new Money(25), new TransactionInfo("RID3", "DESC3"));
+        aggregate.Withdraw(new Money(25), new TransactionInfo("RID3", "DESC3"));
+        aggregate.Deposit(new Money(25), new TransactionInfo("RID3", "DESC3"));
+        aggregate.Withdraw(new Money(25), new TransactionInfo("RID3", "DESC3"));
+        aggregate.Deposit(new Money(25), new TransactionInfo("RID3", "DESC3"));
+        aggregate.Withdraw(new Money(25), new TransactionInfo("RID3", "DESC3"));
+        aggregate.Deposit(new Money(200), new TransactionInfo("RID5", "DESC5"));
 
         // Act
         await fixture.EventStore.PersistAsync(aggregate);
@@ -330,7 +331,8 @@ public class EventStoreIntegrationTests(DatabaseFixture fixture) : IClassFixture
         await fixture.Context.SaveChangesAsync();
 
         // Act
-        Func<Task> act = async () => await fixture.EventStore.RehydrateAsync<Domain.WalletAggregate.Wallet>(aggregateId);
+        Func<Task> act = async () =>
+            await fixture.EventStore.RehydrateAsync<Domain.WalletAggregate.Wallet>(aggregateId);
 
         // Assert
         await act.Should().ThrowAsync<ArgumentOutOfRangeException>()
@@ -357,7 +359,8 @@ public class EventStoreIntegrationTests(DatabaseFixture fixture) : IClassFixture
         await fixture.Context.SaveChangesAsync();
 
         // Act
-        Func<Task> act = async () => await fixture.EventStore.RehydrateAsync<Domain.WalletAggregate.Wallet>(aggregateId);
+        Func<Task> act = async () =>
+            await fixture.EventStore.RehydrateAsync<Domain.WalletAggregate.Wallet>(aggregateId);
 
         // Assert
         await act.Should().ThrowAsync<ArgumentOutOfRangeException>()
@@ -374,7 +377,8 @@ public class EventStoreIntegrationTests(DatabaseFixture fixture) : IClassFixture
 
         // Act
         Func<Task> act = async () =>
-            await fixture.EventStore.RehydrateAsync<Domain.WalletAggregate.Wallet>(aggregateId, cancellationToken: cts.Token);
+            await fixture.EventStore.RehydrateAsync<Domain.WalletAggregate.Wallet>(aggregateId,
+                cancellationToken: cts.Token);
 
         // Assert
         await act.Should().ThrowAsync<OperationCanceledException>();
@@ -386,7 +390,7 @@ public class EventStoreIntegrationTests(DatabaseFixture fixture) : IClassFixture
         // Arrange
         var aggregate = new Domain.WalletAggregate.Wallet();
         aggregate.Create(new Money(100), new Money(500), new Owner(1111, "11111"));
-        aggregate.Deposit(new Money(200), new TransactionInfo("TID1", "RID1", "DESC1"));
+        aggregate.Deposit(new Money(200), new TransactionInfo( "RID1", "DESC1"));
 
         var cts = new CancellationTokenSource();
         cts.Cancel();

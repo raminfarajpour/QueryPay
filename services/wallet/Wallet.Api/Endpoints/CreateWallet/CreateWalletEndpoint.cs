@@ -11,7 +11,8 @@ public class CreateWalletEndpoint : IEndpoint
         app.MapPost("api/wallet",
             async ([FromBody] CreateWalletRequest request, IMediator mediator, CancellationToken cancellationToken) =>
             {
-                await mediator.Send((CreateWalletCommand)request, cancellationToken);
+                var result = await mediator.Send((CreateWalletCommand)request, cancellationToken);
+                return Results.Ok(result);
             });
     }
 }

@@ -15,12 +15,12 @@ public class CreateWalletCommandHandler(
     IEventStore eventStore,
     IProducerService eventPublisher,
     IOptions<EventBusSetting> eventBusSettingOptions)
-    : IRequestHandler<CreateWalletCommand>
+    : IRequestHandler<CreateWalletCommand,CreateWalletCommandResponse>
 {
     private EventBusSetting EventBusSetting { get; } = eventBusSettingOptions.Value ??
                                                        throw new ArgumentNullException(nameof(eventBusSettingOptions));
 
-    public async Task Handle(CreateWalletCommand command, CancellationToken cancellationToken)
+    public async Task<CreateWalletCommandResponse> Handle(CreateWalletCommand command, CancellationToken cancellationToken)
     {
         var wallet = new Domain.WalletAggregate.Wallet();
         wallet.Create(
@@ -33,7 +33,8 @@ public class CreateWalletCommandHandler(
 
         await PublishIntegrationEvents(cancellationToken, wallet);
 
-       
+        return new CreateWalletCommandResponse(wallet.Id, wallet.Balance.Amount);
+
     }
 
     private async Task PublishIntegrationEvents(CancellationToken cancellationToken, Domain.WalletAggregate.Wallet? wallet)

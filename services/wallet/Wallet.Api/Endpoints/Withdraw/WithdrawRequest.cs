@@ -13,7 +13,6 @@ public record WithdrawRequest(
         return new WithdrawCommand()
         {
             Amount = request.Amount,
-            TransactionId = request.TransactionId,
             ReferenceId = request.ReferenceId,
             Description = request.Description
         };

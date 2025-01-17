@@ -77,7 +77,7 @@ public class IntegrationMessageHandlerTests(
 
 
         var transactionEvent = new WalletTransactionCreatedIntegrationEvent(aggregateId,
-            new Transaction(new TransactionInfo("TID", "RID", "Deposit"), new Money(100), new Money(500),
+            new Transaction(new TransactionInfo( "RID", "Deposit"), new Money(100), new Money(500),
                 new Money(500), TransactionDirection.Increase));
         await PublishAsync(transactionEvent,
             ((EventBusSetting)eventBusSetting.Value).WalletIntegrationEventsExchange.WalletTransactionCreatedEventQueue

@@ -28,7 +28,6 @@ public class Wallet : Aggregate<Wallet>
                 if (createdEvent.InitialBalance > (Money)0)
                 {
                     var transactionInfo = new TransactionInfo(
-                        Guid.NewGuid().ToString("N"),
                         Id.ToString(),
                         "Wallet Initial Balance");
 

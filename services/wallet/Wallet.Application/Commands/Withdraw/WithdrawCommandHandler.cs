@@ -15,25 +15,27 @@ public class WithdrawCommandHandler(
     IEventStore eventStore,
     IProducerService eventPublisher,
     IOptions<EventBusSetting> eventBusSettingOptions)
-    : IRequestHandler<WithdrawCommand>
+    : IRequestHandler<WithdrawCommand,WithdrawCommandResponse>
 {
     private EventBusSetting EventBusSetting { get; } = eventBusSettingOptions.Value ??
                                                        throw new ArgumentNullException(nameof(eventBusSettingOptions));
 
-    public async Task Handle(WithdrawCommand command, CancellationToken cancellationToken)
+    public async Task<WithdrawCommandResponse> Handle(WithdrawCommand command, CancellationToken cancellationToken)
     {
         var wallet =
             await eventStore.RehydrateAsync<Domain.WalletAggregate.Wallet>(
                 command.WalletId, cancellationToken: cancellationToken);
 
         if(wallet is null) throw new ApplicationException("No wallet found");
-        
-        wallet.Withdraw(new Money(command.Amount),
-            new TransactionInfo(command.TransactionId, command.ReferenceId, command.Description));
+
+        var transaction = new TransactionInfo(command.ReferenceId, command.Description);
+        wallet.Withdraw(new Money(command.Amount),transaction);
         
         await eventStore.PersistAsync(wallet, cancellationToken);
 
         await PublishIntegrationEvents(cancellationToken, wallet);
+
+        return new WithdrawCommandResponse(wallet.Balance.Amount, transaction.TransactionId);
     }
 
     private async Task PublishIntegrationEvents(CancellationToken cancellationToken,
