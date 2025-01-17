@@ -28,8 +28,10 @@ public class CommandType : ValueObject<CommandType>
             4 => Insert,
             _ => throw new InvalidEnumArgumentException(nameof(code))
         };
-    
-    
+
+    public static List<CommandType> GetAll() => [Select, Update, Delete, Insert];
+
+
     protected override IEnumerable<object>? GetEqualityComponents()
     {
         yield return Code;

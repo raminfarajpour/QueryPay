@@ -6,4 +6,5 @@ public class WalletSetting:HttpClientConfig
 {
     public string GetWallet  { get; set; }
     public string Withdraw  { get; set; }
+    public string CreateWallet  { get; set; }
 }

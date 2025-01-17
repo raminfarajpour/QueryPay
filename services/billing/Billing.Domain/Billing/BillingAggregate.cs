@@ -26,9 +26,8 @@ public class BillingAggregate : AggregateRoot<long>
         Balance = balance;
     }
 
-    public void AddFinancialItem(List<CommandType> commands, int affectedRows, PricingSetting pricing)
+    public void AddFinancialItem(FinancialItem financialItem, int affectedRows, PricingSetting pricing)
     {
-        var financialItem = FinancialItem.Create(commands, affectedRows, pricing);
         _financialItems.Add(financialItem);
     }
 }
