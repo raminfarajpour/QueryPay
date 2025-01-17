@@ -1,63 +1,16 @@
 ﻿using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
-using Moq;
 using Newtonsoft.Json;
-using Testcontainers.PostgreSql;
-using Wallet.BuildingBlocks.Domain;
 using Wallet.Domain.WalletAggregate;
 using Wallet.Domain.WalletAggregate.Snapshots;
-using Wallet.Infrastructure.Persistence.EventStore;
 using Wallet.Infrastructure.Persistence.EventStore.Entities;
-using Wallet.Infrastructure.Persistence.EventStore.Repositories;
+using Wallet.IntegrationTests.Fixtures;
 using Xunit;
 
 namespace Wallet.IntegrationTests;
 
-public class EventStoreIntegrationTests : IAsyncLifetime
+public class EventStoreIntegrationTests(DatabaseFixture fixture) : IClassFixture<DatabaseFixture>
 {
-    private readonly PostgreSqlContainer _postgreSqlContainer;
-    private EventStoreContext _context;
-    private IServiceProvider _serviceProvider;
-    private EventStore _eventStore;
-
-    public EventStoreIntegrationTests()
-    {
-        _postgreSqlContainer = new PostgreSqlBuilder()
-            .WithImage("postgres:14")
-            .WithHostname("localhost")
-            .WithDatabase("test_wallet_db")
-            .WithUsername("postgres")
-            .WithPassword("test_user_p@ssword")
-            .WithPortBinding("5490")
-            .Build();
-        
-    }
-    
-    public async Task InitializeAsync()
-    {
-        await _postgreSqlContainer.StartAsync();
-        
-        var services = new ServiceCollection();
-        services.AddScoped<ISnapshotFactory<Domain.WalletAggregate.Wallet>,WalletSnapshotFactory>();
-        _serviceProvider = services.BuildServiceProvider();
-
-        var options = new DbContextOptionsBuilder<EventStoreContext>()
-            .UseNpgsql(_postgreSqlContainer.GetConnectionString())
-            .Options;
-
-        _context = new EventStoreContext(options);
-        await _context.Database.MigrateAsync();
-
-        _eventStore = new EventStore(_context, _serviceProvider);
-    }
-
-    public async Task DisposeAsync()
-    {
-        await _context.Database.EnsureDeletedAsync();
-        await _postgreSqlContainer.StopAsync();
-    }
-
     [Fact]
     public async Task RehydrateAsync_ShouldReturnNullWhenNoSnapshotsOrEventsExist()
     {
@@ -65,7 +18,7 @@ public class EventStoreIntegrationTests : IAsyncLifetime
         var aggregateId = Guid.NewGuid();
 
         // Act
-        var aggregate = await _eventStore.RehydrateAsync<Domain.WalletAggregate.Wallet>(aggregateId);
+        var aggregate = await fixture.EventStore.RehydrateAsync<Domain.WalletAggregate.Wallet>(aggregateId);
 
         // Assert
         aggregate.Should().BeNull();
@@ -90,13 +43,13 @@ public class EventStoreIntegrationTests : IAsyncLifetime
                 CreatedAt = DateTimeOffset.UtcNow,
                 Index = 5,
                 AggregateId = aggregateId,
-                AggregateType = nameof(Domain.WalletAggregate.Wallet),
+                AggregateType = nameof(Wallet),
             }),
-            AggregateType = nameof(Domain.WalletAggregate.Wallet),
+            AggregateType = nameof(Wallet),
             CreatedAt = DateTimeOffset.UtcNow.AddHours(-1)
         };
-        await _context.Snapshots.AddAsync(snapshot);
-        await _context.SaveChangesAsync();
+        await fixture.Context.Snapshots.AddAsync(snapshot);
+        await fixture.Context.SaveChangesAsync();
 
         var events = new List<EventEntity>
         {
@@ -111,9 +64,9 @@ public class EventStoreIntegrationTests : IAsyncLifetime
                 {
                     Index = 6,
                     AggregateId = aggregateId,
-                    AggregateType = nameof(Domain.WalletAggregate.Wallet),
+                    AggregateType = nameof(Wallet),
                 }),
-                AggregateType = nameof(Domain.WalletAggregate.Wallet),
+                AggregateType = nameof(Wallet),
                 Timestamp = DateTimeOffset.UtcNow.AddMinutes(-30)
             },
             new EventEntity
@@ -127,17 +80,17 @@ public class EventStoreIntegrationTests : IAsyncLifetime
                 {
                     Index = 7,
                     AggregateId = aggregateId,
-                    AggregateType = nameof(Domain.WalletAggregate.Wallet),
+                    AggregateType = nameof(Wallet),
                 }),
                 Timestamp = DateTimeOffset.UtcNow.AddMinutes(-15),
-                AggregateType = nameof(Domain.WalletAggregate.Wallet)
+                AggregateType = nameof(Wallet)
             }
         };
-        await _context.Events.AddRangeAsync(events);
-        await _context.SaveChangesAsync();
+        await fixture.Context.Events.AddRangeAsync(events);
+        await fixture.Context.SaveChangesAsync();
 
         // Act
-        var aggregate = await _eventStore.RehydrateAsync<Domain.WalletAggregate.Wallet>(aggregateId);
+        var aggregate = await fixture.EventStore.RehydrateAsync<Domain.WalletAggregate.Wallet>(aggregateId);
 
         // Assert
         aggregate.Should().NotBeNull();
@@ -166,9 +119,9 @@ public class EventStoreIntegrationTests : IAsyncLifetime
                     {
                         Index = 0,
                         AggregateId = aggregateId,
-                        AggregateType = nameof(Domain.WalletAggregate.Wallet),
+                        AggregateType = nameof(Wallet),
                     }),
-                AggregateType = nameof(Domain.WalletAggregate.Wallet),
+                AggregateType = nameof(Wallet),
                 Timestamp = DateTimeOffset.UtcNow.AddMinutes(-30)
             },
             new EventEntity
@@ -182,9 +135,9 @@ public class EventStoreIntegrationTests : IAsyncLifetime
                 {
                     Index = 1,
                     AggregateId = aggregateId,
-                    AggregateType = nameof(Domain.WalletAggregate.Wallet),
+                    AggregateType = nameof(Wallet),
                 }),
-                AggregateType = nameof(Domain.WalletAggregate.Wallet),
+                AggregateType = nameof(Wallet),
                 Timestamp = DateTimeOffset.UtcNow.AddMinutes(-30)
             },
             new EventEntity
@@ -198,17 +151,17 @@ public class EventStoreIntegrationTests : IAsyncLifetime
                 {
                     Index = 2,
                     AggregateId = aggregateId,
-                    AggregateType = nameof(Domain.WalletAggregate.Wallet),
+                    AggregateType = nameof(Wallet),
                 }),
                 Timestamp = DateTimeOffset.UtcNow.AddMinutes(-15),
-                AggregateType = nameof(Domain.WalletAggregate.Wallet)
+                AggregateType = nameof(Wallet)
             }
         };
-        await _context.Events.AddRangeAsync(events);
-        await _context.SaveChangesAsync();
+        await fixture.Context.Events.AddRangeAsync(events);
+        await fixture.Context.SaveChangesAsync();
 
         // Act
-        var aggregate = await _eventStore.RehydrateAsync<Domain.WalletAggregate.Wallet>(aggregateId);
+        var aggregate = await fixture.EventStore.RehydrateAsync<Domain.WalletAggregate.Wallet>(aggregateId);
 
         // Assert
         aggregate.Should().NotBeNull();
@@ -216,9 +169,7 @@ public class EventStoreIntegrationTests : IAsyncLifetime
         aggregate.Owner.Should().Be(new Owner(12313213, "123123"));
         aggregate.Balance.Should().Be(new Money(300));
         aggregate.Version.Should().Be(3);
-    
     }
-
 
     [Fact]
     public async Task RehydrateAsync_ShouldHandleDeserializationErrorsGracefully()
@@ -234,13 +185,12 @@ public class EventStoreIntegrationTests : IAsyncLifetime
             Type = "WalletDepositedEvent",
             Payload = "Invalid JSON",
             Timestamp = DateTimeOffset.UtcNow,
-            AggregateType = nameof(Domain.WalletAggregate.Wallet),
+            AggregateType = nameof(Wallet),
         };
-        await _context.Events.AddAsync(invalidEvent);
-
-
+        await fixture.Context.Events.AddAsync(invalidEvent);
+        
         // Act
-        Func<Task> act = async () => await _context.SaveChangesAsync();
+        Func<Task> act = async () =>  await fixture.Context.SaveChangesAsync();
 
         // Assert
         await act.Should().ThrowAsync<Exception>();
@@ -265,9 +215,9 @@ public class EventStoreIntegrationTests : IAsyncLifetime
                     {
                         Index = 0,
                         AggregateId = aggregateId,
-                        AggregateType = nameof(Domain.WalletAggregate.Wallet),
+                        AggregateType = nameof(Wallet),
                     }),
-                AggregateType = nameof(Domain.WalletAggregate.Wallet),
+                AggregateType = nameof(Wallet),
                 Timestamp = DateTimeOffset.UtcNow.AddMinutes(-120)
             },
             new EventEntity
@@ -281,9 +231,9 @@ public class EventStoreIntegrationTests : IAsyncLifetime
                 {
                     Index = 1,
                     AggregateId = aggregateId,
-                    AggregateType = nameof(Domain.WalletAggregate.Wallet),
+                    AggregateType = nameof(Wallet),
                 }),
-                AggregateType = nameof(Domain.WalletAggregate.Wallet),
+                AggregateType = nameof(Wallet),
                 Timestamp = DateTimeOffset.UtcNow.AddMinutes(-100)
             },
             new EventEntity
@@ -297,20 +247,20 @@ public class EventStoreIntegrationTests : IAsyncLifetime
                 {
                     Index = 2,
                     AggregateId = aggregateId,
-                    AggregateType = nameof(Domain.WalletAggregate.Wallet),
+                    AggregateType = nameof(Wallet),
                 }),
                 Timestamp = DateTimeOffset.UtcNow.AddMinutes(-15),
-                AggregateType = nameof(Domain.WalletAggregate.Wallet)
+                AggregateType = nameof(Wallet)
             }
         };
-        await _context.Events.AddRangeAsync(events);
-        await _context.SaveChangesAsync();
+        await fixture.Context.Events.AddRangeAsync(events);
+        await fixture.Context.SaveChangesAsync();
 
         // Define a timestamp to rehydrate up to
         var rehydrateUntil = DateTimeOffset.UtcNow.AddMinutes(-100);
 
         // Act
-        var aggregate = await _eventStore.RehydrateAsync<Domain.WalletAggregate.Wallet>(aggregateId, rehydrateUntil);
+        var aggregate = await fixture.EventStore.RehydrateAsync<Domain.WalletAggregate.Wallet>(aggregateId, rehydrateUntil);
 
         // Assert
         aggregate.Should().NotBeNull();
@@ -345,93 +295,91 @@ public class EventStoreIntegrationTests : IAsyncLifetime
         aggregate.Deposit(new Money(200), new TransactionInfo("TID5", "RID5", "DESC5"));
 
         // Act
-        await _eventStore.PersistAsync(aggregate);
+        await fixture.EventStore.PersistAsync(aggregate);
 
         // Assert
-        var savedWallet = await _eventStore.RehydrateAsync<Domain.WalletAggregate.Wallet>(aggregate.Id);
+        var savedWallet = await fixture.EventStore.RehydrateAsync<Domain.WalletAggregate.Wallet>(aggregate.Id);
         savedWallet.Should().NotBeNull();
         savedWallet.Version.Should().Be(18);
 
-        var savedSnapshot = await _context.Snapshots.FirstOrDefaultAsync(s => s.AggregateId == aggregate.Id);
+        var savedSnapshot = await fixture.Context.Snapshots.FirstOrDefaultAsync(s => s.AggregateId == aggregate.Id);
         savedSnapshot.Should().NotBeNull();
         savedSnapshot!.Version.Should().Be(17);
         var deserializedSnapshot = JsonConvert.DeserializeObject<WalletSnapshot>(savedSnapshot.State);
         deserializedSnapshot.Should().NotBeNull();
-        deserializedSnapshot!.Balance.Should().Be(new Money(200)); 
+        deserializedSnapshot!.Balance.Should().Be(new Money(200));
     }
 
-
-    
     [Fact]
     public async Task RehydrateAsync_ShouldThrowException_WhenSnapshotTypeIsUnsupported()
     {
         // Arrange
         var aggregateId = Guid.NewGuid();
-    
+
         var snapshot = new SnapshotEntity
         {
             Id = Guid.NewGuid(),
             AggregateId = aggregateId,
             Version = 1,
             Type = "UnsupportedSnapshot",
-            State = "{\"AggregateId\":\"" + aggregateId + "\",\"Balance\":100}",
-            AggregateType = nameof(Domain.WalletAggregate.Wallet),
+            State = $"{{\"AggregateId\":\"{aggregateId}\",\"Balance\":100}}",
+            AggregateType = nameof(Wallet),
             CreatedAt = DateTimeOffset.UtcNow.AddHours(-1)
         };
-        await _context.Snapshots.AddAsync(snapshot);
-        await _context.SaveChangesAsync();
-    
+        await fixture.Context.Snapshots.AddAsync(snapshot);
+        await fixture.Context.SaveChangesAsync();
+
         // Act
-        Func<Task> act = async () => await _eventStore.RehydrateAsync<Domain.WalletAggregate.Wallet>(aggregateId);
-    
+        Func<Task> act = async () => await fixture.EventStore.RehydrateAsync<Domain.WalletAggregate.Wallet>(aggregateId);
+
         // Assert
         await act.Should().ThrowAsync<ArgumentOutOfRangeException>()
             .WithMessage("*");
     }
-    
+
     [Fact]
     public async Task RehydrateAsync_ShouldThrowException_WhenEventTypeIsUnsupported()
     {
         // Arrange
         var aggregateId = Guid.NewGuid();
-    
+
         var @event = new EventEntity
         {
             Id = Guid.NewGuid(),
             AggregateId = aggregateId,
             Index = 1,
             Type = "UnsupportedEvent",
-            Payload = "{\"AggregateId\":\"" + aggregateId + "\",\"Amount\":100}",
+            Payload = $"{{\"AggregateId\":\"{aggregateId}\",\"Amount\":100}}",
             Timestamp = DateTimeOffset.UtcNow,
-            AggregateType = nameof(Domain.WalletAggregate.Wallet),
+            AggregateType = nameof(Wallet),
         };
-        await _context.Events.AddAsync(@event);
-        await _context.SaveChangesAsync();
-    
+        await fixture.Context.Events.AddAsync(@event);
+        await fixture.Context.SaveChangesAsync();
+
         // Act
-        Func<Task> act = async () => await _eventStore.RehydrateAsync<Domain.WalletAggregate.Wallet>(aggregateId);
-    
+        Func<Task> act = async () => await fixture.EventStore.RehydrateAsync<Domain.WalletAggregate.Wallet>(aggregateId);
+
         // Assert
         await act.Should().ThrowAsync<ArgumentOutOfRangeException>()
             .WithMessage("*");
     }
-    
+
     [Fact]
     public async Task RehydrateAsync_Should_Handle_CancellationToken()
     {
         // Arrange
         var aggregateId = Guid.NewGuid();
         var cts = new CancellationTokenSource();
-        await cts.CancelAsync();
-    
+        cts.Cancel();
+
         // Act
         Func<Task> act = async () =>
-            await _eventStore.RehydrateAsync<Domain.WalletAggregate.Wallet>(aggregateId, cancellationToken: cts.Token);
-    
+            await fixture.EventStore.RehydrateAsync<Domain.WalletAggregate.Wallet>(aggregateId, cancellationToken: cts.Token);
+
         // Assert
         await act.Should().ThrowAsync<OperationCanceledException>();
     }
-    
+
     [Fact]
     public async Task PersistAsync_Should_Handle_CancellationToken_During_Persistence()
     {
@@ -439,21 +387,24 @@ public class EventStoreIntegrationTests : IAsyncLifetime
         var aggregate = new Domain.WalletAggregate.Wallet();
         aggregate.Create(new Money(100), new Money(500), new Owner(1111, "11111"));
         aggregate.Deposit(new Money(200), new TransactionInfo("TID1", "RID1", "DESC1"));
-    
+
         var cts = new CancellationTokenSource();
-        await cts.CancelAsync();
-    
+        cts.Cancel();
+
         // Act
-        Func<Task> act = async () => await _eventStore.PersistAsync(aggregate, cancellationToken: cts.Token);
-    
+        Func<Task> act = async () => await fixture.EventStore.PersistAsync(aggregate, cancellationToken: cts.Token);
+
         // Assert
         await act.Should().ThrowAsync<OperationCanceledException>();
-    
-        var savedEvents = await _context.Events.Where(e => e.AggregateId == aggregate.Id).ToListAsync(CancellationToken.None);
+
+        var savedEvents = await fixture.Context.Events
+            .Where(e => e.AggregateId == aggregate.Id)
+            .ToListAsync(CancellationToken.None);
         savedEvents.Should().BeEmpty();
-    
-        var savedSnapshots = await _context.Snapshots.Where(s => s.AggregateId == aggregate.Id).ToListAsync(CancellationToken.None);
+
+        var savedSnapshots = await fixture.Context.Snapshots
+            .Where(s => s.AggregateId == aggregate.Id)
+            .ToListAsync(CancellationToken.None);
         savedSnapshots.Should().BeEmpty();
     }
-   
 }

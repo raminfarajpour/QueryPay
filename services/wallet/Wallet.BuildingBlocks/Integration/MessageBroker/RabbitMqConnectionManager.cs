@@ -57,6 +57,8 @@ namespace Wallet.BuildingBlocks.Integration.MessageBroker
 
                 foreach (var queue in queueSettings)
                 {
+                    if(queue is null) continue;
+                    
                     var arguments =
                         queue.RetryQueue is not null
                             ? new Dictionary<string, object?>
