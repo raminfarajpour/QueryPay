@@ -8,7 +8,8 @@ import (
 )
 
 type Event struct {
-	ID        string    `json:"id"`
+	Id        string    `json:"id"`
+	UserId    int64     `json:"userId"`
 	Payload   string    `json:"payload"`
 	CreatedAt time.Time `json:"createdAt"`
 }
@@ -20,7 +21,8 @@ func NewEvent(input interface{}) (*Event, error) {
 	}
 
 	event := &Event{
-		ID:        uuid.NewString(), // Generate a unique ID
+		Id:        uuid.NewString(),
+		UserId:    111222333, //test user id
 		Payload:   string(payload),
 		CreatedAt: time.Now(),
 	}
