@@ -3,40 +3,41 @@ package config
 import (
 	"fmt"
 	"github.com/rs/zerolog/log"
-	"gopkg.in/yaml.v3"
+	"github.com/spf13/viper"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 type ProxyConfig struct {
-	ListenPort      int    `yaml:"listen_port"`
-	DestinationHost string `yaml:"destination_host"`
-	DestinationPort int    `yaml:"destination_port"`
+	ListenPort      int    `mapstructure:"listen_port"`
+	DestinationHost string `mapstructure:"destination_host"`
+	DestinationPort int    `mapstructure:"destination_port"`
 }
 
 type RedisConfig struct {
-	Address  string `yaml:"address"`
-	Password string `yaml:"password"`
-	DB       int    `yaml:"db"`
+	Address  string `mapstructure:"address"`
+	Password string `mapstructure:"password"`
+	DB       int    `mapstructure:"db"`
 }
 
 type RabbitMqConfig struct {
-	Host     string `yaml:"host"`
-	Port     int    `yaml:"port"`
-	Username string `yaml:"username"`
-	Password string `yaml:"password"`
+	Host     string `mapstructure:"host"`
+	Port     int    `mapstructure:"port"`
+	Username string `mapstructure:"username"`
+	Password string `mapstructure:"password"`
 }
 
 type BillingServiceConfig struct {
-	Host string `yaml:"host"`
-	Port int    `yaml:"port"`
+	Host string `mapstructure:"host"`
+	Port int    `mapstructure:"port"`
 }
 
 type Config struct {
-	Proxy          ProxyConfig          `yaml:"proxy"`
-	Redis          RedisConfig          `yaml:"redis"`
-	RabbitMq       RabbitMqConfig       `yaml:"rabbitmq"`
-	BillingService BillingServiceConfig `yaml:"billing_service"`
+	Proxy          ProxyConfig          `mapstructure:"proxy"`
+	Redis          RedisConfig          `mapstructure:"redis"`
+	RabbitMq       RabbitMqConfig       `mapstructure:"rabbitmq"`
+	BillingService BillingServiceConfig `mapstructure:"billing_service"`
 }
 
 func GetConfigFile() string {
@@ -56,18 +57,29 @@ func GetConfigFile() string {
 }
 
 func LoadConfig() (*Config, error) {
-	configFile := GetConfigFile()
-	file, err := os.Open(configFile)
+
+	workingDir, err := os.Getwd()
 	if err != nil {
-		return nil, fmt.Errorf("failed to open config file: %w", err)
+		log.Fatal().Msg("error in getting working directory")
 	}
-	defer file.Close()
+	configFileName := "config"
+	configPath := filepath.Join(workingDir, "config")
 
-	config := &Config{}
-	decoder := yaml.NewDecoder(file)
-	if err := decoder.Decode(config); err != nil {
-		return nil, fmt.Errorf("failed to decode config file: %w", err)
+	viper.SetConfigName(configFileName)
+	viper.SetConfigType("yaml")
+	viper.AddConfigPath(configPath)
+
+	viper.AutomaticEnv()
+	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
+
+	if err := viper.ReadInConfig(); err != nil {
+		return nil, fmt.Errorf("error reading config file: %w", err)
 	}
 
-	return config, nil
+	var cfg Config
+	if err := viper.Unmarshal(&cfg); err != nil {
+		return nil, fmt.Errorf("unable to decode into struct: %w", err)
+	}
+
+	return &cfg, nil
 }

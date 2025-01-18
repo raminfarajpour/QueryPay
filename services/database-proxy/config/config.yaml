@@ -3,9 +3,9 @@ proxy:
   destination_host: "127.0.0.1"
   destination_port: 1433
 redis:
-    address: "localhost:6375"
-    password: ""
-    db: 0
+  address: "localhost:6375"
+  password: ""
+  db: 0
 rabbitmq:
   host: "localhost"
   port: 5672
@@ -13,4 +13,4 @@ rabbitmq:
   password: "admin"
 billing_service:
   host: "localhost"
-  port: 5672
+  port: 5161

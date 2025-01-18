@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/go-redis/redis/v8"
+	"github.com/joho/godotenv"
 	"github.com/raminfarajpour/database-proxy/config"
 	"github.com/raminfarajpour/database-proxy/internal/outbox"
 	"github.com/raminfarajpour/database-proxy/internal/proxy"
@@ -15,6 +16,8 @@ import (
 )
 
 func main() {
+
+	godotenv.Load()
 
 	config, err := config.LoadConfig()
 	if err != nil {
