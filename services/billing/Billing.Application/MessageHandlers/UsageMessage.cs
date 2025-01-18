@@ -7,6 +7,7 @@ namespace Billing.Application.MessageHandlers;
 public class UsageMessage:IIntegrationEvent
 {
     public Guid Id { get; set; }
+    public long UserId { get; set; }
     public string Payload { get; set; }
     public DateTime CreatedAt { get; set; }
 

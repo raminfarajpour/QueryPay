@@ -1,5 +1,5 @@
 namespace Billing.Infrastructure.ExternalServices.WalletService.Models;
 
-public class WithdrawRequestModel
-{
-}
+public record WithdrawRequestModel(decimal Amount,
+    string ReferenceId,
+    string Description);

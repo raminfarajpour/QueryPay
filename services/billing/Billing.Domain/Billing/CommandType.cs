@@ -31,7 +31,13 @@ public class CommandType : ValueObject<CommandType>
 
     public static List<CommandType> GetAll() => [Select, Update, Delete, Insert];
 
-
+    public static List<CommandType> ConvertToCommandType(List<string> commands)
+    {
+        var commandTypes = CommandType.GetAll();
+        return commands
+            .Select(c => commandTypes.FirstOrDefault(t => c.Equals(t.Title, StringComparison.OrdinalIgnoreCase)))
+            .Where(x => x is not null).ToList()!;
+    }
     protected override IEnumerable<object>? GetEqualityComponents()
     {
         yield return Code;

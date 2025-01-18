@@ -4,13 +4,17 @@ namespace Billing.Domain.Billing;
 
 public class FinancialItem:Entity<long>
 {
+    private FinancialItem()
+    {
+    }
+
     private readonly List<CommandType> _commands = [];
     public IReadOnlyCollection<CommandType> Commands => [.._commands];
-    public int RecordsAffected { get; private set; }
+    public long RecordsAffected { get; private set; }
     public Money Amount { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
 
-    public FinancialItem(List<CommandType> commands, int recordsAffected, Money amount)
+    public FinancialItem(List<CommandType> commands, long recordsAffected, Money amount)
     {
         _commands = commands;
         RecordsAffected = recordsAffected;
@@ -18,7 +22,7 @@ public class FinancialItem:Entity<long>
         CreatedAt = DateTimeOffset.UtcNow;
     }
 
-    public static FinancialItem Create(List<CommandType> commands, int affectedRows, PricingSetting pricing)
+    public static FinancialItem Create(List<CommandType> commands, long affectedRows, PricingSetting pricing)
     {
         var amount = commands.Sum(c => pricing.CommandPricing.First(p => p.Type == c).Price);
         amount += new Money(affectedRows * pricing.AffectedRowPrice.Amount);

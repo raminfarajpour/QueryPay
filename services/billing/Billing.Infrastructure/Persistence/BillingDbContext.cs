@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Billing.Infrastructure.Persistence;
 
-public class BillingDbContext(DbContextOptions<BillingDbContext> options) : DbContext(options)
+public class BillingDbContext(DbContextOptions options) : DbContext(options)
 {
     public DbSet<BillingAggregate?> Billings { get; set; }
     protected override void OnModelCreating(ModelBuilder modelBuilder)

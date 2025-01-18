@@ -23,6 +23,9 @@ public class BillingAggregateConfiguration : IEntityTypeConfiguration<BillingAgg
             .IsRequired()
             .HasColumnName("CreatedAt");
 
+        builder.Property(c => c.Balance)
+            .IsRequired()
+            .HasConversion(money => money.Amount, value => new Money(value));
         builder.Property(x => x.UserId).IsRequired();
         builder.Property(x => x.WalletId).IsRequired();
 

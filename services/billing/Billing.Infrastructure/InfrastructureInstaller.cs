@@ -34,8 +34,8 @@ public static class InfrastructureInstaller
 
         services.AddSingleton<IConsumerService, ConsumerService>();
 
-        services.AddSingleton<IRabbitMqConnectionFactory, RabbitMqConnectionFactory>();
-        services.AddSingleton<IRabbitMqConnectionManager, RabbitMqConnectionManager>();
+        services.AddSingleton<IRabbitMqConnectionFactory<EventBusSetting>, RabbitMqConnectionFactory<EventBusSetting>>();
+        services.AddSingleton<IRabbitMqConnectionManager, RabbitMqConnectionManager<EventBusSetting>>();
 
         services.AddHostedService<ConsumersHostedService>();
     }
@@ -55,7 +55,7 @@ public static class InfrastructureInstaller
     private static void ConfigureWriteDbContext(IServiceCollection services, IConfiguration configuration)
     {
         var connectionStringBuilder =
-            new SqlConnectionStringBuilder(configuration.GetConnectionString("BillingDb"))
+            new SqlConnectionStringBuilder(configuration.GetConnectionString("Billing"))
             {
                 ApplicationName = "Billing",
                 TrustServerCertificate = true

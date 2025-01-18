@@ -4,6 +4,10 @@ namespace Billing.Domain.Billing;
 
 public class BillingAggregate : AggregateRoot<long>
 {
+    private BillingAggregate()
+    {
+    }
+
     public long UserId { get; private set; }
     public Guid WalletId { get; private set; }
     public Money Balance { get; private set; }
@@ -26,7 +30,7 @@ public class BillingAggregate : AggregateRoot<long>
         Balance = balance;
     }
 
-    public void AddFinancialItem(FinancialItem financialItem, int affectedRows, PricingSetting pricing)
+    public void AddFinancialItem(FinancialItem financialItem)
     {
         _financialItems.Add(financialItem);
     }
