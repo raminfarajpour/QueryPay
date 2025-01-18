@@ -13,10 +13,10 @@ namespace Wallet.UnitTests.BuildingBlocks.Integration.MessageBroker;
 public class RabbitMqConnectionManagerTests
 {
     private readonly Mock<IOptions<TestRabbitMqSetting>> _mockOptions;
-    private readonly Mock<IRabbitMqConnectionFactory> _mockConnectionFactory;
+    private readonly Mock<IRabbitMqConnectionFactory<TestRabbitMqSetting>> _mockConnectionFactory;
     private readonly Mock<IConnection> _mockConnection;
     private readonly Mock<IChannel> _mockChannel;
-    private readonly RabbitMqConnectionManager _connectionManager;
+    private readonly RabbitMqConnectionManager<TestRabbitMqSetting> _connectionManager;
 
     public RabbitMqConnectionManagerTests()
     {
@@ -64,7 +64,7 @@ public class RabbitMqConnectionManagerTests
 
         _mockOptions.Setup(o => o.Value).Returns(testSetting);
 
-        _mockConnectionFactory = new Mock<IRabbitMqConnectionFactory>();
+        _mockConnectionFactory = new Mock<IRabbitMqConnectionFactory<TestRabbitMqSetting>>();
 
         // _mockConnectionFactory =
         //     new Mock<IRabbitMqConnectionFactory>(new Mock<ILogger<RabbitMqConnectionFactory>>().Object,
@@ -76,8 +76,8 @@ public class RabbitMqConnectionManagerTests
             .Setup(conn => conn.CreateChannelAsync(It.IsAny<CreateChannelOptions?>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(_mockChannel.Object);
 
-        _connectionManager = new RabbitMqConnectionManager(_mockConnectionFactory.Object,
-            new Mock<ILogger<RabbitMqConnectionManager>>().Object);
+        _connectionManager = new RabbitMqConnectionManager<TestRabbitMqSetting>(_mockConnectionFactory.Object,
+            new Mock<ILogger<RabbitMqConnectionManager<TestRabbitMqSetting>>>().Object);
         // _connectionManager = new Mock<IRabbitMqConnectionManager>(_mockConnectionFactory.Object,
         //     new Mock<ILogger<RabbitMqConnectionManager>>().Object);
     }

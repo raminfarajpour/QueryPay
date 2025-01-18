@@ -4,10 +4,10 @@ using RabbitMQ.Client;
 
 namespace Wallet.BuildingBlocks.Integration.MessageBroker
 {
-    public class RabbitMqConnectionManager(
-        IRabbitMqConnectionFactory factory,
-        ILogger<RabbitMqConnectionManager> logger)
-        : IRabbitMqConnectionManager
+    public class RabbitMqConnectionManager<TSetting>(
+        IRabbitMqConnectionFactory<TSetting> factory,
+        ILogger<RabbitMqConnectionManager<TSetting>> logger) 
+        : IRabbitMqConnectionManager  where TSetting : RabbitMqSetting,new()
     {
         private readonly ILogger _logger = logger;
 

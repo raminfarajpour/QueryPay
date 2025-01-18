@@ -4,28 +4,29 @@ using RabbitMQ.Client;
 
 namespace Wallet.BuildingBlocks.Integration.MessageBroker;
 
-public class RabbitMqConnectionFactory(
-    ILogger<RabbitMqConnectionFactory> logger,
-    IOptions<RabbitMqSetting>? rabbitOptions) : IRabbitMqConnectionFactory
+public class RabbitMqConnectionFactory<TSetting>(
+    ILogger<RabbitMqConnectionFactory<TSetting>> logger,
+    IOptions<TSetting>? rabbitOptions) : IRabbitMqConnectionFactory<TSetting>  where TSetting : RabbitMqSetting,new()
 {
-    private readonly RabbitMqSetting _rabbitMqSetting =
+    public  TSetting Settings =>
         rabbitOptions?.Value ?? throw new ArgumentNullException(nameof(rabbitOptions));
+    
 
     public async Task<(IConnection,List<RabbitMqExchangeSetting>)> CreateConnectionAsync(
         CancellationToken cancellationToken)
     {
         var factory = new ConnectionFactory
         {
-            UserName = _rabbitMqSetting.ConnectionSetting.Username,
-            Password = _rabbitMqSetting.ConnectionSetting.Password,
-            HostName = _rabbitMqSetting.ConnectionSetting.HostName,
-            Port = _rabbitMqSetting.ConnectionSetting.Port,
-            VirtualHost = _rabbitMqSetting.ConnectionSetting.VirtualHost
+            UserName = Settings.ConnectionSetting.Username,
+            Password = Settings.ConnectionSetting.Password,
+            HostName = Settings.ConnectionSetting.HostName,
+            Port = Settings.ConnectionSetting.Port,
+            VirtualHost = Settings.ConnectionSetting.VirtualHost
         };
 
         logger.LogInformation($"Connecting to RabbitMQ ...");
 
         var connection= await factory.CreateConnectionAsync(cancellationToken);
-        return (connection, _rabbitMqSetting.GetExchanges());
+        return (connection, Settings.GetExchanges());
     }
 }

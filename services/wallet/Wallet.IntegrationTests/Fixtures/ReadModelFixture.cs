@@ -144,10 +144,10 @@ public class ReadModelFixture : IAsyncLifetime
             configure.SetMinimumLevel(LogLevel.Debug); 
         });
 
-        services.AddSingleton<IOptions<RabbitMqSetting>>(Options.Create(_rabbitMqConnectionSetting));
-        services.AddSingleton<IRabbitMqConnectionFactory,RabbitMqConnectionFactory>();
+        services.AddSingleton<IOptions<EventBusSetting>>(Options.Create(_rabbitMqConnectionSetting));
+        services.AddSingleton<IRabbitMqConnectionFactory<EventBusSetting>,RabbitMqConnectionFactory<EventBusSetting>>();
 
-        services.AddSingleton<IRabbitMqConnectionManager, RabbitMqConnectionManager>();
+        services.AddSingleton<IRabbitMqConnectionManager, RabbitMqConnectionManager<EventBusSetting>>();
 
         services.AddSingleton<IConsumerService, ConsumerService>();
         

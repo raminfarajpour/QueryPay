@@ -12,14 +12,14 @@ namespace Wallet.ReadModel.Messages;
 
 public class WalletCreatedIntegrationMessageHandler(
     IServiceProvider serviceProvider,
-    IOptions<RabbitMqSetting> rabbitMqOptions,
+    IOptions<EventBusSetting> rabbitMqOptions,
     ILogger<MessageHandler<WalletCreatedIntegrationEvent>> logger)
     : MessageHandler<WalletCreatedIntegrationEvent>(logger)
 {
     private readonly ILogger<MessageHandler<WalletCreatedIntegrationEvent>> _logger = logger;
 
     public override RabbitMqQueueSetting QueueSetting { get; set; } =
-        ((EventBusSetting)rabbitMqOptions.Value).WalletIntegrationEventsExchange.WalletCreatedEventQueue;
+        rabbitMqOptions.Value.WalletIntegrationEventsExchange.WalletCreatedEventQueue;
 
 
     protected override async Task HandleAsync(WalletCreatedIntegrationEvent? message,

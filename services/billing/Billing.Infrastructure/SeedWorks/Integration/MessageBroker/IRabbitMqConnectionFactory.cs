@@ -2,9 +2,7 @@
 
 namespace Billing.Infrastructure.SeedWorks.Integration.MessageBroker;
 
-public interface IRabbitMqConnectionFactory<TSetting> where TSetting : RabbitMqSetting,new()
+public interface IRabbitMqConnectionFactory
 {
-    TSetting Settings { get; }
-    Task<(IConnection Connection, List<RabbitMqExchangeSetting> ExchangeSettings)> CreateConnectionAsync(
-        CancellationToken cancellationToken);
+    Task<(IConnection Connection,List<RabbitMqExchangeSetting> ExchangeSettings)> CreateConnectionAsync(CancellationToken cancellationToken);
 }

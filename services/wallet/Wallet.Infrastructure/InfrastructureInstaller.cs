@@ -24,8 +24,9 @@ public static class InfrastructureInstaller
 
         services.AddSingleton<IProducerService, ProducerService>();
 
-        services.AddSingleton<IRabbitMqConnectionFactory, RabbitMqConnectionFactory>();
-        services.AddSingleton<IRabbitMqConnectionManager, RabbitMqConnectionManager>();
+        services
+            .AddSingleton<IRabbitMqConnectionFactory<EventBusSetting>, RabbitMqConnectionFactory<EventBusSetting>>();
+        services.AddSingleton<IRabbitMqConnectionManager, RabbitMqConnectionManager<EventBusSetting>>();
 
         services.AddSingleton<IConsumerService, ConsumerService>();
 
