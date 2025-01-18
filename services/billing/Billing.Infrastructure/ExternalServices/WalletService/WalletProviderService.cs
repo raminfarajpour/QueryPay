@@ -17,7 +17,7 @@ public class WalletProviderService(
 
     public async Task<CreateWalletResponseModel> CreateUserWallet(CreateWalletRequestModel createRequest, CancellationToken cancellationToken)
     {
-        var callApiRequest = CallApiRequest.Create(_walletSetting.CreateWallet, HttpMethod.Post);
+        var callApiRequest = CallApiRequest.Create(_walletSetting.CreateWallet, HttpMethod.Post,createRequest);
         
         var client = httpClientFactory.CreateClient(_walletSetting.Name);
         
@@ -37,7 +37,7 @@ public class WalletProviderService(
 
     public async Task<WalletResponseModel> GetUserWalletAsync(Guid walletId, CancellationToken cancellationToken)
     {
-        var action = string.Format(_walletSetting.GetWallet, walletId);
+        var action = string.Format(_walletSetting.GetWallet, walletId.ToString());
         var callApiRequest = CallApiRequest.Create(action, HttpMethod.Get);
         
         var client = httpClientFactory.CreateClient(_walletSetting.Name);
@@ -59,7 +59,7 @@ public class WalletProviderService(
     public async Task<WithdrawResponseModel> WithdrawAsync(Guid walletId,WithdrawRequestModel withdrawRequest, CancellationToken cancellationToken)
     {
         var action = string.Format(_walletSetting.Withdraw,walletId);
-        var callApiRequest = CallApiRequest.Create(action, HttpMethod.Put);
+        var callApiRequest = CallApiRequest.Create(action, HttpMethod.Put,withdrawRequest);
         
         var client = httpClientFactory.CreateClient(_walletSetting.Name);
         

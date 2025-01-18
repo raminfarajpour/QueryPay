@@ -1,13 +1,9 @@
 namespace Billing.Infrastructure.ExternalServices.WalletService.Models;
 
-public class WalletResponseModel(Guid walletId, long userId, decimal balance, decimal overUsageThreshold)
+public class WalletResponseModel
 {
-    public WalletResponseModel() : this(default, default, default, default)
-    {
-    }
-
-    public Guid WalletId { get; } = walletId;
-    public long UserId { get; } = userId;
-    public decimal Balance { get; } = balance;
-    public decimal OverUsageThreshold { get; } = overUsageThreshold;
+    public Guid WalletId { get; set;} 
+    public long UserId { get; set;} 
+    public decimal Balance { get;set; } 
+    public decimal OverUsageThreshold { get; set;} 
 }

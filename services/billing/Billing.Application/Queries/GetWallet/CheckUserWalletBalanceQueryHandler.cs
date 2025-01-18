@@ -25,7 +25,7 @@ public class CheckUserWalletBalanceQueryHandler(
 
         var financialItem = FinancialItem.Create(commandTypes, request.RowCount, Setting.PricingSetting);
 
-        return new CheckUserWalletBalanceQueryResponse(financialItem.Amount >
+        return new CheckUserWalletBalanceQueryResponse(financialItem.Amount <
                                                        new Money(walletResponse.Balance +
                                                                  walletResponse.OverUsageThreshold));
     }

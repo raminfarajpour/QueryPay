@@ -5,6 +5,7 @@ using Wallet.Application.Commands.CreateWallet;
 using Wallet.Domain;
 using Wallet.Infrastructure;
 using Wallet.ReadModel;
+using Wallet.ReadModel.Queries.GetWallet;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,6 +17,9 @@ builder.Services.ConfigureDomain();
 builder.Services.ConfigureApplication();
 builder.Services.ConfigureInfrastructure(builder.Configuration);
 builder.Services.ConfigureReadModel(builder.Configuration);
+
+builder.Services.AddMediatR(c=>c.RegisterServicesFromAssemblies([typeof(CreateWalletCommand).Assembly, typeof(GetWalletQuery).Assembly]));
+
 builder.Services.AddEndpoints();
 var app = builder.Build();
 

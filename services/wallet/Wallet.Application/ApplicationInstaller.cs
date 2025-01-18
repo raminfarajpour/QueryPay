@@ -10,7 +10,7 @@ public static class ApplicationInstaller
 {
     public static void ConfigureApplication(this IServiceCollection services)
     {
-        services.AddMediatR(c=>c.RegisterServicesFromAssembly(typeof(CreateWalletCommand).Assembly));
+        //services.AddMediatR(c=>c.RegisterServicesFromAssembly(typeof(CreateWalletCommand).Assembly));
 
     }
 }

@@ -6,6 +6,7 @@ using MongoDB.Bson.Serialization.Serializers;
 using Wallet.Application.IntegrationEvents;
 using Wallet.BuildingBlocks.Integration.MessageBroker;
 using Wallet.ReadModel.Messages;
+using Wallet.ReadModel.Queries.GetWallet;
 using Wallet.ReadModel.Repositories;
 
 namespace Wallet.ReadModel;
@@ -17,7 +18,7 @@ public static class ReadModelInstaller
     public static void ConfigureReadModel(this IServiceCollection services, IConfiguration configuration)
     {
         BsonSerializer.TryRegisterSerializer(new GuidSerializer(BsonType.Binary));
-
+        
         services.AddSingleton(
             new WalletReadModelDatabaseContext(configuration.GetConnectionString("ReadModel")!, WalletDatabaseName));
         services.AddScoped<IWalletReadModelRepository, WalletReadModelRepository>();

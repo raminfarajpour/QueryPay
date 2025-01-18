@@ -1,6 +1,7 @@
 using Billing.Api.GrpcServices;
 using Billing.Application;
 using Billing.Infrastructure;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,6 +12,14 @@ builder.Services.ConfigureApplication(builder.Configuration);
 builder.Services.ConfigureInfrastructure(builder.Configuration);
 builder.Services.AddGrpc();
 
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.ListenAnyIP(5100, listenOptions =>
+    {
+        listenOptions.Protocols = HttpProtocols.Http2;
+        listenOptions.UseHttps(); 
+    });
+});
 
 var app = builder.Build();
 

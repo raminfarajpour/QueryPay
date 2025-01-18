@@ -2,12 +2,23 @@
 
 namespace Wallet.Api.Endpoints.CreateWallet;
 
-public record CreateWalletRequest(
-    long OwnerUserId,
-    string OwnerMobile,
-    decimal InitialBalance,
-    decimal OverUsedThreshold)
+public class CreateWalletRequest
 {
+    public CreateWalletRequest()
+    {
+        
+    }
+    public CreateWalletRequest(
+        long ownerUserId,
+        string ownerMobile,
+        decimal initialBalance,
+        decimal overUsedThreshold)
+    {
+        OverUsedThreshold = overUsedThreshold;
+        OwnerUserId = ownerUserId;
+        OwnerMobile = ownerMobile;
+        InitialBalance = initialBalance;
+    }
     public static explicit operator CreateWalletCommand(CreateWalletRequest request)
     {
         return new CreateWalletCommand()
@@ -18,4 +29,10 @@ public record CreateWalletRequest(
             OverUsedThreshold = request.OverUsedThreshold
         };
     }
+
+    public long OwnerUserId { get; init; }
+    public string OwnerMobile { get; init; } 
+    public decimal InitialBalance { get; init; } 
+    public decimal OverUsedThreshold { get; init; } 
+    
 }
