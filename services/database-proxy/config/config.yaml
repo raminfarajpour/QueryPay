@@ -11,3 +11,6 @@ rabbitmq:
   port: 5672
   username: "admin"
   password: "admin"
+billing_service:
+  host: "localhost"
+  port: 5672

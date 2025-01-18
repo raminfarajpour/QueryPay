@@ -2,8 +2,10 @@ package config
 
 import (
 	"fmt"
+	"github.com/rs/zerolog/log"
 	"gopkg.in/yaml.v3"
 	"os"
+	"path/filepath"
 )
 
 type ProxyConfig struct {
@@ -25,14 +27,37 @@ type RabbitMqConfig struct {
 	Password string `yaml:"password"`
 }
 
-type Config struct {
-	Proxy    ProxyConfig    `yaml:"proxy"`
-	Redis    RedisConfig    `yaml:"redis"`
-	RabbitMq RabbitMqConfig `yaml:"rabbitmq"`
+type BillingServiceConfig struct {
+	Host string `yaml:"host"`
+	Port int    `yaml:"port"`
 }
 
-func LoadConfig(filename string) (*Config, error) {
-	file, err := os.Open(filename)
+type Config struct {
+	Proxy          ProxyConfig          `yaml:"proxy"`
+	Redis          RedisConfig          `yaml:"redis"`
+	RabbitMq       RabbitMqConfig       `yaml:"rabbitmq"`
+	BillingService BillingServiceConfig `yaml:"billing_service"`
+}
+
+func GetConfigFile() string {
+	configPath := os.Getenv("CONFIG_FILE")
+	if configPath != "" {
+		return configPath
+	}
+
+	workingDir, err := os.Getwd()
+	if err != nil {
+		log.Fatal().Msg("error in getting working directory")
+	}
+	configFileName := "config/config.yaml"
+
+	configPath = filepath.Join(workingDir, configFileName)
+	return configPath
+}
+
+func LoadConfig() (*Config, error) {
+	configFile := GetConfigFile()
+	file, err := os.Open(configFile)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open config file: %w", err)
 	}

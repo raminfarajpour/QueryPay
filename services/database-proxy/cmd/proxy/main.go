@@ -11,18 +11,12 @@ import (
 	"github.com/rs/zerolog/log"
 	"os"
 	"os/signal"
-	"path/filepath"
 	"syscall"
 )
 
 func main() {
 
-	workingDir, err := os.Getwd()
-
-	configFileName := "config/config.yaml"
-
-	configPath := filepath.Join(workingDir, configFileName)
-	config, err := config.LoadConfig(configPath)
+	config, err := config.LoadConfig()
 	if err != nil {
 		log.Fatal().Msgf("failed to load config file %w \n", err)
 	}

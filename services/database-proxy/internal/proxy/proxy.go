@@ -3,6 +3,7 @@ package proxy
 import (
 	"context"
 	"fmt"
+	"github.com/raminfarajpour/database-proxy/internal/billing"
 	"github.com/raminfarajpour/database-proxy/internal/events"
 	"github.com/raminfarajpour/database-proxy/internal/outbox"
 	"github.com/raminfarajpour/database-proxy/internal/tds"
@@ -138,7 +139,11 @@ func (dbProxy *DatabaseProxyServer) forwardServerToClientAndInspect(server, clie
 
 		fullPacket := append(header, packetBody...)
 
-		dbProxy.analyzePacket(fullPacket)
+		analyzeError := dbProxy.analyzePacket(fullPacket)
+		if analyzeError != nil {
+			log.Fatal().Msgf("user balance is insufficient")
+			break
+		}
 
 		_, err = client.Write(fullPacket)
 		if err != nil {
@@ -162,24 +167,34 @@ func (dbProxy *DatabaseProxyServer) forwardServerToClientAndInspect(server, clie
 	}
 }
 
-func (dbProxy *DatabaseProxyServer) analyzePacket(data []byte) {
+func (dbProxy *DatabaseProxyServer) analyzePacket(data []byte) error {
 	if len(data) < 1 {
-		return
+		return nil
 	}
 
 	packet, err := tds.NewPacket(data)
 	if err != nil {
 		//log.Info().Msgf("error getting packet info %v\n", err)
-		return
+		return err
 	}
 
 	result := packet.Parse()
 
 	if (result.Keywords != nil && len(result.Keywords) > 0) || result.RowCount > 0 {
+
+		billingProvider := billing.BillingServiceProvider{}
+		isBalanceSufficient, err := billingProvider.CheckUserBalance(111222333, result.Keywords, result.RowCount)
+		if err != nil {
+			return err
+		}
+		if isBalanceSufficient == false {
+			return fmt.Errorf("user balance is not valid")
+		}
+
 		event, err := events.NewEvent(result)
 		if err != nil {
 			log.Fatal().Msgf("error in creating event for %v with error %v", result, err)
-			return
+			return err
 		}
 		ctx := context.Background()
 		dbProxy.Outbox.WriteEvent(ctx, event)
@@ -187,4 +202,5 @@ func (dbProxy *DatabaseProxyServer) analyzePacket(data []byte) {
 
 	log.Info().Msgf("status %#X type: %#X parsed packet %v\n", data[1], data[0], result)
 
+	return nil
 }
