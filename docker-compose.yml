@@ -24,7 +24,7 @@ services:
     ports:
       - "1433:1433"
     networks:
-      - microservice-networks
+      - microservice-network
 
   redis:
     image: redis:latest
@@ -60,7 +60,7 @@ services:
 
   database-proxy-service:
     build:
-      context: ./database_proxy
+      context: ./services/database-proxy
       dockerfile: Dockerfile
     ports:
       - "1434:1434"
@@ -91,8 +91,9 @@ services:
       - microservice-network
 
   billing-service:
+    platform: linux/amd64
     build:
-      context: ./billing
+      context: ./services/billing
       dockerfile: Dockerfile
     container_name: billing-service
     depends_on:
@@ -142,7 +143,7 @@ services:
 
   wallet-service:
     build:
-      context: ./billing
+      context: ./services/wallet
       dockerfile: Dockerfile
     container_name: wallet-service
     depends_on:
@@ -216,7 +217,7 @@ services:
       - EVENTBUSSETTING__WALLETINTEGRATIONEVENTSEXCHANGE__WALLETUPDATEDEVENTQUEUE__RETRYQUEUE__PREFETCHCOUNT=${WALLET_SERVICE__EVENTBUSSETTING__WALLETINTEGRATIONEVENTSEXCHANGE__WALLETUPDATEDEVENTQUEUE__RETRYQUEUE__PREFETCHCOUNT}
       - EVENTBUSSETTING__WALLETINTEGRATIONEVENTSEXCHANGE__WALLETUPDATEDEVENTQUEUE__RETRYQUEUE__EXPIRETIME=${WALLET_SERVICE__EVENTBUSSETTING__WALLETINTEGRATIONEVENTSEXCHANGE__WALLETUPDATEDEVENTQUEUE__RETRYQUEUE__EXPIRETIME}
     ports:
-      - "8100:80"
+      - "5100:5100"
     networks:
       - microservice-network
 
