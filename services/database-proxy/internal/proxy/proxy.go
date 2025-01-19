@@ -126,7 +126,7 @@ func (dbProxy *DatabaseProxyServer) forwardServerToClientAndInspect(server, clie
 			if err != io.EOF {
 				log.Printf("error reading TDS header from server: %v\n", err)
 			}
-			break
+			continue
 		}
 		packetLength := int(header[2])<<8 | int(header[3])
 
@@ -134,21 +134,21 @@ func (dbProxy *DatabaseProxyServer) forwardServerToClientAndInspect(server, clie
 		_, err = io.ReadFull(server, packetBody)
 		if err != nil {
 			log.Printf("error reading TDS packet body from server: %v\n", err)
-			break
+			continue
 		}
 
 		fullPacket := append(header, packetBody...)
 
 		analyzeError := dbProxy.analyzePacket(fullPacket)
 		if analyzeError != nil {
-			log.Fatal().Msgf("user balance is insufficient")
-			break
+			log.Fatal().Msgf("user balance is insufficient error %v", analyzeError)
+			continue
 		}
 
 		_, err = client.Write(fullPacket)
 		if err != nil {
 			log.Printf("error writing to client: %v\n", err)
-			break
+			continue
 		}
 		/*n, err := io.ReadFull(server, buf)
 		if err != nil {

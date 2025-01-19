@@ -44,7 +44,7 @@ namespace Billing.Infrastructure.SeedWorks.Integration.MessageBroker
                     durable: exchangeSetting.Durable, autoDelete: exchangeSetting.AutoDelete,
                     cancellationToken: cancellationToken);
 
-                var retryExchangeName = $"Retry_{exchangeSetting.Name}";
+                var retryExchangeName = $"retry_{exchangeSetting.Name}";
 
                 await _channel.ExchangeDeclareAsync(retryExchangeName, type: exchangeSetting.Type,
                     durable: exchangeSetting.Durable, autoDelete: exchangeSetting.AutoDelete,

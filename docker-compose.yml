@@ -4,23 +4,22 @@ services:
 
   rabbitmq:
     image: rabbitmq:3-management
-    container_name: rabbitmq
-    hostname: rabbitmq
+    container_name: rabbitmq-service
     environment:
       RABBITMQ_DEFAULT_USER: admin
       RABBITMQ_DEFAULT_PASS: admin
     ports:
-      - "5672:5672"
-      - "15672:15672"  
+      - "5672:5672" 
+      - "15672:15672" 
     networks:
       - microservice-network
 
   sqlserver:
-    image: mcr.microsoft.com/mssql/server:2022-latest
+    image: mcr.microsoft.com/azure-sql-edge
     container_name: sqlserver
     environment:
-      ACCEPT_EULA: "Y"
-      SA_PASSWORD: "R@min5402"  
+      ACCEPT_EULA: "1"
+      MSSQL_SA_PASSWORD: "R@min5402"  
     ports:
       - "1433:1433"
     networks:
@@ -49,7 +48,7 @@ services:
 
   mongodb:
     image: mongo:6
-    container_name: mongodb
+    container_name: mongo
     environment:
       MONGO_INITDB_ROOT_USERNAME: admin
       MONGO_INITDB_ROOT_PASSWORD: admin
@@ -71,27 +70,26 @@ services:
       - rabbitmq
       - billing-service
     environment:
-      - PROXY__LISTEN_PORT=${DATABASE_PROXY__PROXY__LISTEN_PORT}
-      - DESTINATION_HOST=${DATABASE_PROXY__PROXY__DESTINATION_HOST}
-      - PROXY__DESTINATION_PORT=${DATABASE_PROXY__PROXY__DESTINATION_PORT}
+      - PROXY_LISTEN_PORT=${DATABASE_PROXY__PROXY__LISTEN_PORT}
+      - PROXY_DESTINATION_HOST=${DATABASE_PROXY__PROXY__DESTINATION_HOST}
+      - PROXY_DESTINATION_PORT=${DATABASE_PROXY__PROXY__DESTINATION_PORT}
 
-      - REDIS__ADDRESS=${DATABASE_PROXY__REDIS__ADDRESS}
-      - REDIS__PASSWORD=${DATABASE_PROXY__REDIS__PASSWORD}
-      - REDIS__DB=${DATABASE_PROXY__REDIS__DB}
+      - REDIS_ADDRESS=${DATABASE_PROXY__REDIS__ADDRESS}
+      - REDIS_PASSWORD=${DATABASE_PROXY__REDIS__PASSWORD}
+      - REDIS_DB=${DATABASE_PROXY__REDIS__DB}
 
-      - RABBITMQ__HOST=${DATABASE_PROXY__RABBITMQ__HOST}
-      - RABBITMQ__PORT=${DATABASE_PROXY__RABBITMQ__PORT}
-      - RABBITMQ__USERNAME=${DATABASE_PROXY__RABBITMQ__USERNAME}
-      - RABBITMQ__PASSWORD=${DATABASE_PROXY__RABBITMQ__PASSWORD}
+      - RABBITMQ_HOST=${DATABASE_PROXY__RABBITMQ__HOST}
+      - RABBITMQ_PORT=${DATABASE_PROXY__RABBITMQ__PORT}
+      - RABBITMQ_USERNAME=${DATABASE_PROXY__RABBITMQ__USERNAME}
+      - RABBITMQ_PASSWORD=${DATABASE_PROXY__RABBITMQ__PASSWORD}
 
-      - BILLING_SERVICE__HOST=${DATABASE_PROXY__BILLING_SERVICE__HOST}
-      - SERVICE__PORT=${DATABASE_PROXY__BILLING_SERVICE__PORT}
+      - BILLING_SERVICE_HOST=${DATABASE_PROXY__BILLING_SERVICE__HOST}
+      - BILLING_SERVICE_PORT=${DATABASE_PROXY__BILLING_SERVICE__PORT}
 
     networks:
       - microservice-network
 
   billing-service:
-    platform: linux/amd64
     build:
       context: ./services/billing
       dockerfile: Dockerfile
@@ -136,8 +134,12 @@ services:
       - EVENTBUSSETTING__QUERYPAYUSAGEEVENTSEXCHANGE__QUERYPAYUSAGEEVENTSQUEUE__RETRYQUEUE__TTL=${BILLING_SERVICE__EVENTBUSSETTING__QUERYPAYUSAGEEVENTSEXCHANGE__QUERYPAYUSAGEEVENTSQUEUE__RETRYQUEUE__TTL}
       - EVENTBUSSETTING__QUERYPAYUSAGEEVENTSEXCHANGE__QUERYPAYUSAGEEVENTSEXCHANGE__RETRYQUEUE__PREFETCHCOUNT=${BILLING_SERVICE__EVENTBUSSETTING__QUERYPAYUSAGEEVENTSEXCHANGE__QUERYPAYUSAGEEVENTSQUEUE__RETRYQUEUE__PREFETCHCOUNT}
       - EVENTBUSSETTING__QUERYPAYUSAGEEVENTSEXCHANGE__QUERYPAYUSAGEEVENTSEXCHANGE__RETRYQUEUE__EXPIRETIME=${BILLING_SERVICE__EVENTBUSSETTING__QUERYPAYUSAGEEVENTSEXCHANGE__QUERYPAYUSAGEEVENTSQUEUE__RETRYQUEUE__EXPIRETIME}
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=${Certificates__Default__Path}
+      - ASPNETCORE_Kestrel__Certificates__Default__Password=${Certificates__Default__Password}
     ports:
       - "5161:5161"
+    volumes:
+      - ./certificates:/app/certificates
     networks:
       - microservice-network
 

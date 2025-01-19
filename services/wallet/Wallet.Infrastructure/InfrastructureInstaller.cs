@@ -17,6 +17,7 @@ public static class InfrastructureInstaller
     {
         services.AddDbContext<EventStoreContext>(options =>
             options.UseNpgsql(configuration.GetConnectionString("EventStore")));
+       
         services.AddScoped<IEventStore, EventStore>();
 
         var rabbitMqSettingSection = configuration.GetSection(nameof(EventBusSetting));

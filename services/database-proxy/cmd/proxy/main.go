@@ -3,6 +3,10 @@ package main
 import (
 	"context"
 	"fmt"
+	"os"
+	"os/signal"
+	"syscall"
+
 	"github.com/go-redis/redis/v8"
 	"github.com/joho/godotenv"
 	"github.com/raminfarajpour/database-proxy/config"
@@ -10,9 +14,6 @@ import (
 	"github.com/raminfarajpour/database-proxy/internal/proxy"
 	"github.com/raminfarajpour/database-proxy/internal/rabbitmq"
 	"github.com/rs/zerolog/log"
-	"os"
-	"os/signal"
-	"syscall"
 )
 
 func main() {
@@ -46,7 +47,7 @@ func main() {
 	)
 	rabbitMqPublisher, err := rabbitmq.NewPublisher(rabbitMQURL)
 	if err != nil {
-		log.Fatal().Msgf("error in creating publisher %v", rabbitMQURL)
+		log.Fatal().Msgf("error in creating publisher %v with error %v", rabbitMQURL, err)
 	}
 
 	publishWorker := outbox.NewPublishWorker(outboxHandler, rabbitMqPublisher)

@@ -3,8 +3,13 @@ using Wallet.Infrastructure.Persistence.EventStore.Entities;
 
 namespace Wallet.Infrastructure.Persistence.EventStore;
 
-public class EventStoreContext(DbContextOptions<EventStoreContext> options) : DbContext(options)
+public class EventStoreContext : DbContext
 {
+   
+    public EventStoreContext(DbContextOptions options) : base(options)
+    {
+    }
+
     public DbSet<EventEntity> Events { get; set; }
     public DbSet<SnapshotEntity> Snapshots { get; set; }
     

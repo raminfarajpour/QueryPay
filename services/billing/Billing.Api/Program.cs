@@ -1,3 +1,4 @@
+using System.Security.Cryptography.X509Certificates;
 using Billing.Api.GrpcServices;
 using Billing.Application;
 using Billing.Infrastructure;
@@ -20,10 +21,20 @@ builder.Services.AddGrpc();
 
 builder.WebHost.ConfigureKestrel(options =>
 {
-    options.ListenAnyIP(5100, listenOptions =>
+    var certPath = Environment.GetEnvironmentVariable("ASPNETCORE_Kestrel__Certificates__Default__Path");
+    var certPassword = Environment.GetEnvironmentVariable("ASPNETCORE_Kestrel__Certificates__Default__Password");
+
+    if (!string.IsNullOrEmpty(certPath) && !string.IsNullOrEmpty(certPassword))
+    {
+        options.ConfigureHttpsDefaults(httpsOptions =>
+        {
+            httpsOptions.ServerCertificate = new X509Certificate2(certPath, certPassword);
+        });
+    }
+    options.ListenAnyIP(5161, listenOptions =>
     {
         listenOptions.Protocols = HttpProtocols.Http2;
-        listenOptions.UseHttps(); 
+        listenOptions.UseHttps();
     });
 });
 
