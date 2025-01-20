@@ -9,7 +9,7 @@ flowchart LR
     D[Database Proxy Service] -- SQL --> SS[(SQL Server)]
     D[Database Proxy Service] -- checks user balance --> A[Billing Service]
     D -- uses as outbox --> RE[Redis]
-    D -- send integration events for updating read model --> R
+    B -- send integration events for updating read model --> R
     A -- SQL --> SS
     A -- receives events --> R
 
