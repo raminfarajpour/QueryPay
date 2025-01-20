@@ -33,11 +33,16 @@ type BillingServiceConfig struct {
 	Port int    `mapstructure:"port"`
 }
 
+type CertificateConfig struct {
+	File string `mapstructure:"file"`
+}
+
 type Config struct {
 	Proxy          ProxyConfig          `mapstructure:"proxy"`
 	Redis          RedisConfig          `mapstructure:"redis"`
 	RabbitMq       RabbitMqConfig       `mapstructure:"rabbitmq"`
 	BillingService BillingServiceConfig `mapstructure:"billing_service"`
+	Certificate    CertificateConfig    `mapstructure:"certificate"`
 }
 
 func GetConfigFile() string {

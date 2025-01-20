@@ -1,18 +1,16 @@
 ﻿# syntax=docker/dockerfile:1
 
-# 1) Base runtime image (Debian-based, not Alpine)
-FROM mcr.microsoft.com/dotnet/aspnet:9.0-alpine AS base
+FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS base
 WORKDIR /app
 EXPOSE 5161
 ENV ASPNETCORE_URLS=http://+:5161
 ENV DOTNET_ENVIRONMENT=Production
 
-# 2) Build-stage image (Debian-based SDK)
-FROM mcr.microsoft.com/dotnet/sdk:9.0-alpine AS build
+FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 
-RUN apk add --no-cache libc6-compat
+# RUN apk add --no-cache libc6-compat
 
 # Copy all .csproj files
 COPY ["Billing.Api/Billing.Api.csproj", "Billing.Api/"]

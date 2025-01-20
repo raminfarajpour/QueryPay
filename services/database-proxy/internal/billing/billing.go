@@ -6,6 +6,7 @@ import (
 	"github.com/raminfarajpour/database-proxy/config"
 	"github.com/rs/zerolog/log"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 	"time"
 )
 
@@ -27,7 +28,12 @@ func (b *BillingServiceProvider) CheckUserBalance(userID int64, keywords []strin
 
 	serverAddress := fmt.Sprintf("%v:%v", grpcHost, grpcPort)
 
-	conn, err := grpc.Dial(serverAddress, grpc.WithInsecure(), grpc.WithBlock())
+	creds, err := credentials.NewClientTLSFromFile(configs.Certificate.File, "")
+	if err != nil {
+		log.Fatal().Msgf("Failed to create TLS credentials %v", err)
+	}
+
+	conn, err := grpc.NewClient(serverAddress, grpc.WithTransportCredentials(creds))
 	if err != nil {
 		log.Fatal().Msgf("Failed to connect to gRPC server (%s): %v", serverAddress, err)
 		return false, err
@@ -51,5 +57,6 @@ func (b *BillingServiceProvider) CheckUserBalance(userID int64, keywords []strin
 		return false, err
 	}
 
+	log.Info().Msgf("User Balance Response  %v", resp)
 	return resp.IsBalanceSufficient, nil
 }

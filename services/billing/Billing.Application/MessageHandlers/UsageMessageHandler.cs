@@ -26,14 +26,22 @@ public class UsageMessageHandler(
     
     protected override async Task HandleAsync(UsageMessage? message, CancellationToken cancellationToken)
     {
-        _logger.LogInformation("{@handler} Message Received: {@message}", nameof(UsageMessage),
-            message?.ToJson());
+        try
+        {
+            _logger.LogInformation("{@handler} Message Received: {@message}", nameof(UsageMessage),
+                message?.ToJson());
 
-        using var scope = serviceProvider.CreateScope();
+            using var scope = serviceProvider.CreateScope();
 
-        var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-        var messagePayload = message!.GetPayload();
-        var command = new ApplyUsageCommand(message.UserId, messagePayload.Keywords, messagePayload.RowCount);
-        await mediator.Send(command, cancellationToken);
+            var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+            var messagePayload = message!.GetPayload();
+            var command = new ApplyUsageCommand(message.UserId, messagePayload.Keywords, messagePayload.RowCount);
+            await mediator.Send(command, cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogCritical(ex,"error in consuming event");
+            throw;
+        }
     }
 }

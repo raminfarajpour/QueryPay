@@ -86,6 +86,9 @@ services:
       - BILLING_SERVICE_HOST=${DATABASE_PROXY__BILLING_SERVICE__HOST}
       - BILLING_SERVICE_PORT=${DATABASE_PROXY__BILLING_SERVICE__PORT}
 
+      - CERTIFICATE_FILE=${DATABASE_PROXY__CERTIFICATE__FILE}
+    volumes:
+      - ./certificates:/app/certificates
     networks:
       - microservice-network
 

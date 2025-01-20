@@ -11,6 +11,6 @@ public static class ApplicationInstaller
     public static void ConfigureApplication(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddMediatR(c => c.RegisterServicesFromAssembly(typeof(CreateBillingCommand).Assembly));
-        services.AddScoped<IMessageHandler, UsageMessageHandler>();
+        services.AddSingleton<IMessageHandler, UsageMessageHandler>();
     }
 }

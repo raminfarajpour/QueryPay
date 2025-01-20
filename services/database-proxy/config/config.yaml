@@ -14,3 +14,5 @@ rabbitmq:
 billing_service:
   host: "localhost"
   port: 5161
+certificate:
+  file: "localhost.crt"

@@ -124,7 +124,7 @@ func declareExchanges(channel *amqp091.Channel) {
 		false,      // Exclusive
 		false,      // No-wait
 		amqp091.Table{
-			"x-message-ttl":             int32(5000),
+			"x-message-ttl":             int32(120000),
 			"x-dead-letter-exchange":    exchange,
 			"x-dead-letter-routing-key": routingKey,
 		},
