@@ -27,7 +27,7 @@ flowchart LR
     B -- reads/writes read model --> MG
 ```
 ### Squence Diagram
-```
+```mermaid
 sequenceDiagram
     participant U as User
     participant WS as Wallet Service
