@@ -1,0 +1,45 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <LangVersion>latest</LangVersion>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <IsPackable>false</IsPackable>
+        <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="coverlet.collector" Version="6.0.3">
+          <PrivateAssets>all</PrivateAssets>
+          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="FluentAssertions" Version="8.0.0" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.1" />
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1"/>
+        <PackageReference Include="MongoDB.Driver" Version="3.1.0" />
+        <PackageReference Include="Moq" Version="4.20.72" />
+        <PackageReference Include="NUnit" Version="4.2.2"/>
+        <PackageReference Include="NUnit.Analyzers" Version="4.3.0"/>
+        <PackageReference Include="NUnit3TestAdapter" Version="4.6.0"/>
+        <PackageReference Include="Testcontainers.MongoDb" Version="4.1.0" />
+        <PackageReference Include="Testcontainers.PostgreSql" Version="4.1.0" />
+        <PackageReference Include="Testcontainers.RabbitMq" Version="4.1.0" />
+        <PackageReference Include="xunit" Version="2.9.3" />
+        <PackageReference Include="xunit.extensibility.core" Version="2.9.3" />
+        <PackageReference Include="xunit.runner.visualstudio" Version="3.0.1">
+          <PrivateAssets>all</PrivateAssets>
+          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+    </ItemGroup>
+
+    <ItemGroup>
+        <Using Include="NUnit.Framework"/>
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Wallet.Infrastructure\Wallet.Infrastructure.csproj" />
+      <ProjectReference Include="..\Wallet.ReadModel\Wallet.ReadModel.csproj" />
+    </ItemGroup>
+
+</Project>

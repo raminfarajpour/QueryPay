@@ -1,0 +1,14 @@
+﻿services:
+  postgres-test:
+    image: postgres:14
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: test_user_p@ssword
+      POSTGRES_DB: test_wallet_db
+    ports:
+      - "5490:5432" 
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
