@@ -171,3 +171,19 @@ QueryPay/
 ├── README.md
 └── docker-compose.yml
 ```
+
+## Running the Application with Docker Compose
+
+To run the application and ensure that Entity Framework migrations are applied, follow these steps:
+
+### Prerequisites
+- Docker and Docker Compose installed on your machine.
+- Ensure any required `.env` files or configurations are set up.
+
+
+**Start Services with Migrations Applied**
+
+   Run the following command to start the application and apply database migrations automatically:
+
+   ```bash
+   docker-compose up --build
