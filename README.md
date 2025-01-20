@@ -6,7 +6,7 @@
 flowchart LR
     A[Billing Service] -- publishes/consumes --> R[<b>RabbitMQ</b>]
     B[Wallet Service] -- publishes/consumes --> R
-    D[Database Proxy Service] -- SQL --> SS[(SQL Server)]
+    D[Database Proxy Service] -- proxies user request --> SS[(SQL Server)]
     D[Database Proxy Service] -- checks user balance --> A[Billing Service]
     E[End User] -- send request to proxy -->  D[Database Proxy Service]
     D -- uses as outbox --> RE[Redis]
