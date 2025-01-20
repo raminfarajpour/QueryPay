@@ -29,35 +29,40 @@ flowchart LR
 ### Squence Diagram
 ```mermaid
 sequenceDiagram
-    participant U as User
+    participant U as Client
+    participant DP as Database Proxy
+    participant BS as Billing Service
     participant WS as Wallet Service
     participant PG as Postgres (Event Store)
     participant MG as MongoDB (Read Model)
     participant RQ as RabbitMQ
-    participant BS as Billing Service
     participant SS as SQL Server
-    participant DP as Database Proxy
+    participant R as Redis
+    
 
-    U->>WS: Create Wallet Request
-    WS->>PG: Store WalletCreated Event
-    WS->>MG: Update/Insert Read Model
-    WS->>RQ: Publish "WalletCreated" Event
+    U->>DP: Send TDS Packet
+    DP->>SS: Send Request
+    SS->>DP: Deliver Response
+    DP->>BS: Check User Balance For Extracted Data
+    BS->>WS: Get Wallet Balance
+    WS->>BS: Deliver Wallet Balance
+    BS->>DP: Deliver Process Possibility
+    DP->>U: Deliver Error/ Response Packet
+    DP->>R: Store Extraxted Data (Outbox)
+    DP->>R: Read Data by Worker
+    R->>DP: Outbox Data
+    DP->>RQ: Send Usage Events
+   
+    RQ->>BS: Deliver usage event
+    BS->>WS: Send Withdraw Request
+    WS->>PG: Store Wallet Withdrawal Event
+    WS->>RQ: Wallet Updated Integration Event
+    WS->>RQ: Wallet UpdatedTransaction Created Integration  Event
+    WS->>BS: Deliver Withdraw Response
+    RQ->>WS: Deliver Updated Integration Event
+    WS->>MG: Update/Insert Wallet Read Model
+    RQ->>WS: Deliver UpdatedTransaction Created Integration  Event
+    WS->>MG: Insert Transaction Read Model 
 
-    Note over RQ: RQ routes event to subscribers
-
-    BS->>RQ: Subscribes "WalletCreated" (optional)
-    U->>BS: Create Invoice & Pay Invoice
-    BS->>SS: Insert Invoice Record (via DP or direct)
-    BS->>RQ: Publish "InvoicePaid"
-
-    RQ->>WS: Deliver "InvoicePaid"
-    WS->>PG: Store WalletDebited Event
-    WS->>MG: Update Read Model
-    WS->>RQ: Publish "WalletUpdated"
-
-    RQ->>BS: Deliver "WalletUpdated"
-    BS->>SS: Update Invoice Status (paid)
-    U->>BS: Check Invoice Status
-    BS->>SS: Query
-    BS->>U: Return final status
+   BS->>SS: Store Financial Items  
 
