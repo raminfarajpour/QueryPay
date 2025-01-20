@@ -141,27 +141,26 @@ QueryPay/
 │   └── cert2.pem
 ├── services/
 │   ├── billing/
-│   │   ├── src/
-│   │   │   ├── BillingService.cs
-│   │   │   └── ...
+│   │   ├── Billing.Api
+│   │   ├── Billing.Application
+│   │   ├── Billing.Domain
+│   │   ├── Billing.Infrastructure
 │   │   ├── tests/
 │   │   │   ├── BillingServiceTests.cs
 │   │   │   └── ...
 │   │   ├── Dockerfile
 │   │   └── ...
 │   ├── database-proxy/
-│   │   ├── src/
-│   │   │   ├── ProxyService.go
-│   │   │   └── ...
-│   │   ├── tests/
-│   │   │   ├── ProxyServiceTests.go
+│   │   ├── cmd/
+│   │   │   ├── main.go
 │   │   │   └── ...
 │   │   ├── Dockerfile
 │   │   └── ...
 │   └── wallet/
-│       ├── src/
-│       │   ├── WalletService.cs
-│       │   └── ...
+│       ├── Wallet.Api/
+│       ├── Wallet.Application/
+│       ├── Wallet.Domain/
+│       ├── Wallet.Infrastructure/
 │       ├── tests/
 │       │   ├── WalletServiceTests.cs
 │       │   └── ...
