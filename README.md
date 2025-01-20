@@ -60,4 +60,4 @@ sequenceDiagram
     U->>BS: Check Invoice Status
     BS->>SS: Query
     BS->>U: Return final status
-```
+
