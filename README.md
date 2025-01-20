@@ -134,6 +134,7 @@ sequenceDiagram
 ```
 
 # Folder Structure
+```bash
 QueryPay/
 ├── certificates/
 │   ├── cert1.pem
@@ -170,4 +171,4 @@ QueryPay/
 ├── .gitignore
 ├── README.md
 └── docker-compose.yml
-
+```
