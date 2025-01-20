@@ -5,6 +5,7 @@
 ```mermaid
 flowchart LR
     A[Billing Service] -- publishes/consumes --> R[<b>RabbitMQ</b>]
+    A[Billing Service] -- withdraw request --> B[Wallet Service]
     B[Wallet Service] -- publishes/consumes --> R
     D[Database Proxy Service] -- proxies user request --> SS[(SQL Server)]
     D[Database Proxy Service] -- checks user balance --> A[Billing Service]
