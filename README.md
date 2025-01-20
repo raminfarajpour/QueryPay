@@ -1,3 +1,68 @@
+# مشخصات نیازمندی‌های نرم‌افزار (SRS)
+
+## مقدمه
+- **هدف:** ارائه راهکاری برای مدیریت درخواست‌های کاربران، محاسبه میزان استفاده، و صدور صورتحساب در سرویس QueryPay.
+- **محدوده:** سیستم شامل سه سرویس اصلی کیف پول، صورتحساب و پروکسی دیتابیس می‌باشد.
+
+## نیازمندی‌های عملکردی
+-**سرویس کیف پول:**
+   - ایجاد کیف پول جدید.
+   - مدیریت تراکنش‌ها (افزایش/کاهش موجودی).
+   - ارائه اطلاعات کیف پول.
+
+-**سرویس پروکسی دیتابیس:**
+   - آنالیز بسته‌های ارسالی کاربران.
+   - ذخیره داده‌ها در Redis و ارسال به RabbitMQ.
+   - بررسی موجودی کاربران و ارسال پاسخ.
+
+-**سرویس صورتحساب:**
+   - صدور صورتحساب برای کاربران.
+   - بررسی امکان انجام تراکنش بر اساس داده‌های آنالیز شده.
+
+## نیازمندی‌های غیرعملکردی
+- **مقیاس‌پذیری:** سیستم باید توانایی مدیریت همزمان حجم زیادی از تراکنش‌ها را داشته باشد.
+- **مانیتورینگ:** باید سیستم لاگ های مهم را دخیره کند و توانایی رهگیری درخواست در کل سیستم وجود داشته باشد.(پیاده سازی نشده و باید با OpenTelemetry پیاده سازی شود)
+- **کارایی:** زمان پاسخگویی سرویس‌ها باید حداقل باشد.
+
+## فناوری‌های مورد استفاده
+- **زبان‌ها:** Go (پروکسی دیتابیس)، C# (کیف پول و صورتحساب).
+- **دیتابیس‌ها:** Redis، PostgreSQL، MongoDB، SQL Server.
+- **ارتباطات:** RabbitMQ به‌عنوان Message Broker.
+
+
+# تصمیم‌نامه‌های معماری (ADR)
+
+## تصمیم 1: استفاده از معماری Clean Architecture و DDD
+- **موضوع:** انتخاب معماری برای مدیریت سرویس‌های سیستم
+- **دلایل:**
+  - افزایش قابلیت نگهداری و انعطاف‌پذیری.
+  - جداسازی منطقی لایه‌ها و ارتباطات.
+  - پشتیبانی از رویکرد Event Sourcing برای سرویس Wallet.
+- **جایگزین‌ها:** معماری‌های Monolithic یا Service-Oriented Architecture.
+- **نتیجه:** استفاده از Clean Architecture با رویکرد DDD برای تمامی سرویس‌ها.
+
+## تصمیم 2: انتخاب دیتابیس‌های مختلف
+- **موضوع:** استفاده از دیتابیس‌های خاص برای هر سرویس.
+- **دلایل:**
+  - دیتابیس Redis برای سرعت بالا در خواندن/نوشتن در پروکسی.
+  - دیتابیس MongoDB برای مدل‌های خواندنی سرویس Wallet به دلیل مقیاس‌پذیری.
+  - دیتابیس PostgreSQL برای Event Store به دلیل پشتیبانی از JSONB و سرعت بالا.
+  - دیتابیس SQL Server برای سرویس Billing به دلیل حجم بالای تراکنش‌ها.
+- **جایگزین‌ها:** استفاده از یک دیتابیس عمومی مانند MySQL.
+- **نتیجه:** استفاده از چندین دیتابیس تخصصی.
+
+## تصمیم 3: استفاده از RabbitMQ
+- **موضوع:** مدیریت ارتباط بین سرویس‌ها.
+- **دلایل:**
+  - قابلیت اعتماد بالا در ارسال پیام‌ها.
+  - پشتیبانی از الگوهای مختلف صف‌سازی.
+- **جایگزین‌ها:** Apache Kafka یا AWS SQS.
+- **نتیجه:** انتخاب RabbitMQ به‌عنوان Message Broker اصلی.
+
+
+
+
+
 ## System Design 
 
 ### High-Level Architecture
@@ -25,3 +90,100 @@ flowchart LR
 
     B -- stores events --> PG
     B -- reads/writes read model --> MG
+```
+### Squence Diagram
+```mermaid
+sequenceDiagram
+    participant U as Client
+    participant DP as Database Proxy
+    participant BS as Billing Service
+    participant WS as Wallet Service
+    participant PG as Postgres (Event Store)
+    participant MG as MongoDB (Read Model)
+    participant RQ as RabbitMQ
+    participant SS as SQL Server
+    participant R as Redis
+    
+
+    U->>DP: Send TDS Packet
+    DP->>SS: Send Request
+    SS->>DP: Deliver Response
+    DP->>BS: Check User Balance For Extracted Data
+    BS->>WS: Get Wallet Balance
+    WS->>BS: Deliver Wallet Balance
+    BS->>DP: Deliver Process Possibility
+    DP->>U: Deliver Error/ Response Packet
+    DP->>R: Store Extraxted Data (Outbox)
+    DP->>R: Read Data by Worker
+    R->>DP: Outbox Data
+    DP->>RQ: Send Usage Events
+   
+    RQ->>BS: Deliver usage event
+    BS->>WS: Send Withdraw Request
+    WS->>PG: Store Wallet Withdrawal Event
+    WS->>RQ: Wallet Updated Integration Event
+    WS->>RQ: Wallet UpdatedTransaction Created Integration  Event
+    WS->>BS: Deliver Withdraw Response
+    RQ->>WS: Deliver Updated Integration Event
+    WS->>MG: Update/Insert Wallet Read Model
+    RQ->>WS: Deliver UpdatedTransaction Created Integration  Event
+    WS->>MG: Insert Transaction Read Model 
+
+   BS->>SS: Store Financial Items  
+
+```
+
+# Folder Structure
+```bash
+QueryPay/
+├── certificates/
+│   ├── cert1.pem
+│   └── cert2.pem
+├── services/
+│   ├── billing/
+│   │   ├── Billing.Api
+│   │   ├── Billing.Application
+│   │   ├── Billing.Domain
+│   │   ├── Billing.Infrastructure
+│   │   ├── tests/
+│   │   │   ├── BillingServiceTests.cs
+│   │   │   └── ...
+│   │   ├── Dockerfile
+│   │   └── ...
+│   ├── database-proxy/
+│   │   ├── cmd/
+│   │   │   ├── main.go
+│   │   │   └── ...
+│   │   ├── Dockerfile
+│   │   └── ...
+│   └── wallet/
+│       ├── Wallet.Api/
+│       ├── Wallet.Application/
+│       ├── Wallet.Domain/
+│       ├── Wallet.Infrastructure/
+│       ├── tests/
+│       │   ├── WalletServiceTests.cs
+│       │   └── ...
+│       ├── Dockerfile
+│       └── ...
+├── .env
+├── .gitignore
+├── README.md
+└── docker-compose.yml
+```
+
+## Running the Application with Docker Compose
+
+To run the application and ensure that Entity Framework migrations are applied, follow these steps:
+
+### Prerequisites
+- Docker and Docker Compose installed on your machine.
+- Ensure any required `.env` files or configurations are set up.
+
+
+**Start Services with Migrations Applied**
+
+   Run the following command to start the application and apply database migrations automatically:
+
+   ```bash
+   docker-compose up --build
