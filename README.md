@@ -7,8 +7,8 @@ flowchart LR
     A[Billing Service] -- publishes/consumes --> R[<b>RabbitMQ</b>]
     B[Wallet Service] -- publishes/consumes --> R
     D[Database Proxy Service] -- SQL --> SS[(SQL Server)]
-    D -- uses --> RE[Redis]
-    D -- logs/notifications --> R
+    D -- uses as outbox --> RE[Redis]
+    D -- send integration events for updating read model --> R
     A -- SQL --> SS
     A -- receives events --> R
 
