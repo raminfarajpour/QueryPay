@@ -8,6 +8,7 @@ flowchart LR
     B[Wallet Service] -- publishes/consumes --> R
     D[Database Proxy Service] -- SQL --> SS[(SQL Server)]
     D[Database Proxy Service] -- checks user balance --> A[Billing Service]
+    E[End User] -- send request to proxy -->  D[Database Proxy Service]
     D -- uses as outbox --> RE[Redis]
     B -- send integration events for updating read model --> R
     A -- SQL --> SS
